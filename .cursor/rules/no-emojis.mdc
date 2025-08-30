@@ -1,0 +1,7 @@
+---
+description: don't use emojis in code
+globs:
+alwaysApply: true
+---
+
+Avoid using emojis in code, documentation, commit messages, and UI unless they serve a clear, necessary purpose for user comprehension or accessibility. Prefer clear text and standard symbols. Do not use emojis for decoration or emphasis.

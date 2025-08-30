@@ -1,0 +1,30 @@
+from flask import Flask
+from flask_cors import CORS
+from flask_jwt_extended import JWTManager
+from dotenv import load_dotenv
+import os
+
+# Load environment variables
+load_dotenv()
+
+def create_app():
+    app = Flask(__name__)
+    
+    # Configuration
+    app.config['SECRET_KEY'] = os.getenv('SECRET_KEY', 'your-secret-key-here')
+    app.config['JWT_SECRET_KEY'] = os.getenv('JWT_SECRET_KEY', 'your-jwt-secret-key-here')
+    app.config['JWT_ACCESS_TOKEN_EXPIRES'] = False  # Set to False for development
+    
+    # Initialize extensions
+    CORS(app, origins=["http://localhost:5173", "http://localhost:3000"], supports_credentials=True)
+    JWTManager(app)
+    
+    # Register blueprints
+    from app.routes.auth import auth_bp
+    app.register_blueprint(auth_bp, url_prefix='/api/auth')
+    
+    @app.route('/api/health')
+    def health_check():
+        return {'status': 'healthy', 'message': 'Flask server is running'}
+    
+    return app

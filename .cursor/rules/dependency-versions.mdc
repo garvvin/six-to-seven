@@ -1,0 +1,6 @@
+---
+description: use latest dependency versions, and if it does not work, update code to match latest version, not downgrade dependency
+globs:
+alwaysApply: true
+---
+Always use the latest available versions of dependencies when adding or updating them. If compatibility issues or errors arise due to a new dependency version, update your codebase to be compatible with the latest version rather than downgrading the dependency. Do not pin dependencies to older versions to avoid code changes; prioritize keeping dependencies up to date and refactor code as needed to maintain compatibility.

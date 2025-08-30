@@ -1,0 +1,7 @@
+---
+description: always go through user before applying decisions that aren't explicitly mentioned by user
+globs:
+alwaysApply: true
+---
+While making changes/building something/planning/coding, any decisions that you aren't 90%+ sure and isn't explicity specified through user prompting, make sure to ask the user before continuing.
+Additionally, if you encounter ambiguous requirements, unclear specifications, or missing information that could impact the outcome, proactively reach out to the user for clarification before proceeding. Always prioritize explicit user confirmation over assumptions, especially in cases where multiple interpretations or solutions are possible.

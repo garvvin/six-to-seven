@@ -64,7 +64,7 @@ const Team = () => {
   ];
 
   return (
-    <div className="min-h-screen bg-gray-50 py-8">
+    <div className="min-h-screen py-8">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         {/* Header */}
         <section className="text-center mb-16" aria-labelledby="team-header">
@@ -73,7 +73,7 @@ const Team = () => {
               <Users className="h-12 w-12 text-primary-600" aria-hidden="true" />
             </div>
           </div>
-          <h1 id="team-header" className="text-4xl font-bold text-gray-900 mb-4">Meet Our Team</h1>
+          <h1 id="team-header" className="text-3xl font-bold text-gray-900 mb-4">Meet Our Team</h1>
           <p className="text-xl text-gray-600 max-w-2xl mx-auto">
             We're a passionate team of developers, designers, and innovators who came together 
             during a hackathon to build HealthSync - a comprehensive health tracking solution.

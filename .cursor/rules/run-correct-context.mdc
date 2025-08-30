@@ -1,0 +1,17 @@
+---
+description: make sure terminal commands are ran under correct directory
+globs:
+alwaysApply: true
+---
+
+When(BEFORE) running terminal commands, writing code, or creating new files/folders, always ensure you are operating within the correct directory or folder context. For example:
+
+- Run `npm run dev` or other frontend-related commands only from within the `frontend` directory.
+- Place new code files, configuration files, or folders in the appropriate project subdirectory according to their purpose (e.g., frontend code in `frontend/`, backend code in `backend/`, documentation in `docs/`).
+- Double-check your current working directory before executing commands or creating files to avoid misplacement.
+  If you are unsure about the correct directory for a specific action, always check with the user before proceeding.
+- When editing configuration files (e.g., `vite.config.js`, `.env`), ensure they are placed in the correct project subdirectory (e.g., frontend configs in `frontend/`, backend configs in `backend/`).
+- When referencing file paths in code or scripts, use relative paths that are correct for the current working directory.
+- When creating documentation, place it in the `docs/` directory unless otherwise specified.
+- If a project uses monorepo tools (e.g., Turborepo, Nx), ensure commands are run in the correct package or workspace context.
+- If you are unsure about the correct location for a file, folder, or command, always confirm with the user before proceeding.
