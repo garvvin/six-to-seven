@@ -8,6 +8,8 @@ import Loading from './components/Loading';
 const Home = React.lazy(() => import('./pages/Home'));
 const Dashboard = React.lazy(() => import('./pages/App'));
 const Team = React.lazy(() => import('./pages/Team'));
+const Login = React.lazy(() => import('./pages/Login'));
+const Signup = React.lazy(() => import('./pages/Signup'));
 
 function App() {
   return (
@@ -20,6 +22,8 @@ function App() {
               <Route path="/" element={<Home />} />
               <Route path="/app" element={<Dashboard />} />
               <Route path="/team" element={<Team />} />
+              <Route path="/login" element={<Login />} />
+              <Route path="/signup" element={<Signup />} />
             </Routes>
           </Suspense>
         </main>

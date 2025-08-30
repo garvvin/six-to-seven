@@ -1,3 +1,4 @@
+import React from 'react';
 import {
   Card,
   CardContent,
@@ -5,144 +6,142 @@ import {
   CardHeader,
   CardTitle,
 } from '../components/ui/card';
-import { Activity, Heart, Thermometer, Scale } from 'lucide-react';
+import { Button } from '../components/ui/button';
+import { Upload, Plus, Calendar, User, MessageCircle } from 'lucide-react';
+import UploadMedicalFile from '../components/UploadMedicalFile';
 
 const Dashboard = () => {
   return (
-    <div className="min-h-screen py-8">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <header className="mb-8">
-          <h1 className="text-3xl font-bold text-gray-900 mb-2">
-            Health Dashboard
-          </h1>
-          <p className="text-gray-600">
-            Monitor your health metrics and track your progress
+    <div className="min-h-screen bg-gray-50">
+      {/* Header */}
+      <div className="bg-white border-b">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-3">
+              <div className="w-10 h-10 bg-gradient-to-r from-blue-600 to-purple-600 rounded-lg flex items-center justify-center">
+                <Upload className="h-6 w-6 text-white" />
+              </div>
+              <div>
+                <h1 className="text-2xl font-bold text-gray-900">
+                  HealthSync AI
+                </h1>
+                <p className="text-sm text-gray-600">
+                  Your AI-powered health companion
+                </p>
+              </div>
+            </div>
+
+            <div className="flex items-center gap-3">
+              <Button variant="outline" size="sm">
+                <Calendar className="h-4 w-4 mr-2" />
+                Sync to Calendar
+              </Button>
+              <Button variant="outline" size="sm">
+                <User className="h-4 w-4 mr-2" />
+                Profile
+              </Button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* Main Content */}
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        {/* Page Title */}
+        <div className="mb-8">
+          <h2 className="text-3xl font-bold text-gray-900 mb-2">
+            Your Health Dashboard
+          </h2>
+          <p className="text-lg text-gray-600">
+            AI-powered insights and smart scheduling for your health journey
           </p>
-        </header>
+        </div>
 
-        {/* Welcome Section */}
-        <section className="mb-8" aria-labelledby="welcome-heading">
-          <Card className="text-center">
-            <CardHeader>
-              <div className="flex justify-center mb-4">
-                <div className="p-4 bg-primary-100 rounded-full">
-                  <Heart
-                    className="h-12 w-12 text-primary-600"
-                    aria-hidden="true"
-                  />
-                </div>
-              </div>
-              <CardTitle id="welcome-heading" className="text-2xl">
-                Welcome to HealthSync
-              </CardTitle>
-              <CardDescription className="text-lg">
-                Your personal health tracking dashboard
-              </CardDescription>
-            </CardHeader>
-            <CardContent>
-              <p className="text-gray-600 mb-4">
-                This is where you'll be able to view and manage your health data
-                once connected to your devices or manual entry is implemented.
-              </p>
-              <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-center">
-                <div className="p-4 bg-gray-50 rounded-lg">
-                  <Activity
-                    className="h-8 w-8 text-primary-600 mx-auto mb-2"
-                    aria-hidden="true"
-                  />
-                  <p className="text-sm font-medium text-gray-700">Activity</p>
-                  <p className="text-xs text-gray-500">Coming Soon</p>
-                </div>
-                <div className="p-4 bg-gray-50 rounded-lg">
-                  <Heart
-                    className="h-8 w-8 text-primary-600 mx-auto mb-2"
-                    aria-hidden="true"
-                  />
-                  <p className="text-sm font-medium text-gray-700">
-                    Heart Rate
-                  </p>
-                  <p className="text-xs text-gray-500">Coming Soon</p>
-                </div>
-                <div className="p-4 bg-gray-50 rounded-lg">
-                  <Thermometer
-                    className="h-8 w-8 text-primary-600 mx-auto mb-2"
-                    aria-hidden="true"
-                  />
-                  <p className="text-sm font-medium text-gray-700">
-                    Temperature
-                  </p>
-                  <p className="text-xs text-gray-500">Coming Soon</p>
-                </div>
-                <div className="p-4 bg-gray-50 rounded-lg">
-                  <Scale
-                    className="h-8 w-8 text-primary-600 mx-auto mb-2"
-                    aria-hidden="true"
-                  />
-                  <p className="text-sm font-medium text-gray-700">Weight</p>
-                  <p className="text-xs text-gray-500">Coming Soon</p>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-        </section>
+        {/* Dashboard Grid */}
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+          {/* Left Column - Upload Section */}
+          <div className="lg:col-span-2">
+            <UploadMedicalFile />
+          </div>
 
-        {/* Development Roadmap */}
-        <section aria-labelledby="roadmap-heading">
-          <Card>
-            <CardHeader>
-              <CardTitle id="roadmap-heading">Development Roadmap</CardTitle>
-              <CardDescription>
-                Here's what we're planning to implement next
-              </CardDescription>
-            </CardHeader>
-            <CardContent>
-              <div className="space-y-4">
-                <div className="flex items-start space-x-3">
-                  <div className="w-2 h-2 bg-primary-600 rounded-full mt-2 flex-shrink-0"></div>
-                  <div>
-                    <p className="font-medium text-gray-900">
-                      Manual Data Entry
-                    </p>
-                    <p className="text-sm text-gray-600">
-                      Allow users to manually input health metrics
-                    </p>
-                  </div>
+          {/* Right Column - Sidebar */}
+          <div className="space-y-6">
+            {/* Current Medications */}
+            <Card>
+              <CardHeader className="pb-3">
+                <div className="flex items-center justify-between">
+                  <CardTitle className="text-lg">Current Medications</CardTitle>
+                  <Button size="sm" variant="ghost">
+                    <Plus className="h-4 w-4" />
+                  </Button>
                 </div>
-                <div className="flex items-start space-x-3">
-                  <div className="w-2 h-2 bg-primary-600 rounded-full mt-2 flex-shrink-0"></div>
+                <CardDescription>2 active</CardDescription>
+              </CardHeader>
+              <CardContent className="space-y-3">
+                <div className="flex items-center justify-between p-3 bg-blue-50 rounded-lg">
                   <div>
-                    <p className="font-medium text-gray-900">
-                      Data Visualization
-                    </p>
-                    <p className="text-sm text-gray-600">
-                      Charts and graphs to track progress over time
-                    </p>
+                    <p className="font-medium text-gray-900">Lisinopril</p>
+                    <p className="text-sm text-gray-600">10mg • 08:00</p>
                   </div>
+                  <div className="w-2 h-2 bg-blue-600 rounded-full"></div>
                 </div>
-                <div className="flex items-start space-x-3">
-                  <div className="w-2 h-2 bg-primary-600 rounded-full mt-2 flex-shrink-0"></div>
+                <div className="flex items-center justify-between p-3 bg-green-50 rounded-lg">
                   <div>
-                    <p className="font-medium text-gray-900">Goal Setting</p>
-                    <p className="text-sm text-gray-600">
-                      Set and track health goals and milestones
-                    </p>
+                    <p className="font-medium text-gray-900">Metformin</p>
+                    <p className="text-sm text-gray-600">500mg • 08:00</p>
                   </div>
+                  <div className="w-2 h-2 bg-green-600 rounded-full"></div>
                 </div>
-                <div className="flex items-start space-x-3">
-                  <div className="w-2 h-2 bg-primary-600 rounded-full mt-2 flex-shrink-0"></div>
+                <div className="flex items-center justify-between p-3 bg-orange-50 rounded-lg">
                   <div>
-                    <p className="font-medium text-gray-900">
-                      Reminders & Notifications
-                    </p>
-                    <p className="text-sm text-gray-600">
-                      Stay on track with health monitoring
-                    </p>
+                    <p className="font-medium text-gray-900">Vitamin D3</p>
+                    <p className="text-sm text-gray-600">1000 IU • 08:00</p>
                   </div>
+                  <div className="w-2 h-2 bg-orange-600 rounded-full"></div>
                 </div>
-              </div>
-            </CardContent>
-          </Card>
-        </section>
+              </CardContent>
+            </Card>
+
+            {/* Upcoming Appointments */}
+            <Card>
+              <CardHeader className="pb-3">
+                <div className="flex items-center justify-between">
+                  <CardTitle className="text-lg">
+                    Upcoming Appointments
+                  </CardTitle>
+                  <Button size="sm" variant="ghost">
+                    <Plus className="h-4 w-4" />
+                  </Button>
+                </div>
+                <CardDescription>2 scheduled</CardDescription>
+              </CardHeader>
+              <CardContent className="space-y-3">
+                <div className="p-3 bg-gray-50 rounded-lg">
+                  <p className="font-medium text-gray-900">
+                    Dr. Smith - Cardiology
+                  </p>
+                  <p className="text-sm text-gray-600">Tomorrow • 2:00 PM</p>
+                </div>
+                <div className="p-3 bg-gray-50 rounded-lg">
+                  <p className="font-medium text-gray-900">
+                    Lab Work - Blood Test
+                  </p>
+                  <p className="text-sm text-gray-600">Friday • 9:00 AM</p>
+                </div>
+              </CardContent>
+            </Card>
+          </div>
+        </div>
+      </div>
+
+      {/* Chat Support Button */}
+      <div className="fixed bottom-6 right-6">
+        <Button
+          size="lg"
+          className="w-14 h-14 rounded-full bg-orange-500 hover:bg-orange-600 shadow-lg"
+        >
+          <MessageCircle className="h-6 w-6" />
+        </Button>
       </div>
     </div>
   );

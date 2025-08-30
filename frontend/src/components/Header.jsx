@@ -52,6 +52,20 @@ const Header = () => {
             ))}
           </nav>
 
+          {/* Auth Buttons */}
+          <div className="hidden md:flex items-center space-x-3">
+            <Link to="/login">
+              <Button variant="outline">
+                Login
+              </Button>
+            </Link>
+            <Link to="/signup">
+              <Button>
+                Sign Up
+              </Button>
+            </Link>
+          </div>
+
           {/* Mobile menu button */}
           <div className="md:hidden">
             <Button
@@ -97,6 +111,26 @@ const Header = () => {
                   {item.name}
                 </Link>
               ))}
+              
+              {/* Mobile Auth Buttons */}
+              <div className="pt-4 pb-3 border-t border-gray-200">
+                <div className="space-y-2">
+                  <Link
+                    to="/login"
+                    onClick={closeMenu}
+                    className="block w-full text-center px-3 py-2 rounded-lg text-base font-medium text-gray-600 hover:text-gray-900 hover:bg-gray-50 transition-colors"
+                  >
+                    Login
+                  </Link>
+                  <Link
+                    to="/signup"
+                    onClick={closeMenu}
+                    className="block w-full text-center px-3 py-2 rounded-lg text-base font-medium bg-primary-600 text-white hover:bg-primary-700 transition-colors"
+                  >
+                    Sign Up
+                  </Link>
+                </div>
+              </div>
             </div>
           </div>
         )}
