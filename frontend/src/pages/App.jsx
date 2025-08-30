@@ -1,4 +1,5 @@
 import React from 'react';
+import { useNavigate } from 'react-router-dom';
 import {
   Card,
   CardContent,
@@ -28,6 +29,7 @@ import {
 import UploadMedicalFile from '../components/UploadMedicalFile';
 
 const Dashboard = () => {
+  const navigate = useNavigate();
   const [isChatOpen, setIsChatOpen] = React.useState(false);
   const [message, setMessage] = React.useState('');
   const [selectedFiles, setSelectedFiles] = React.useState([]);
@@ -568,9 +570,12 @@ const Dashboard = () => {
                   Sync your medications, appointments, and health reminders
                   directly to Google Calendar
                 </p>
-                <div className="w-16 h-16 bg-gray-800 rounded-lg flex items-center justify-center mx-auto mb-2 shadow-lg">
+                <button
+                  onClick={() => navigate('/calendar')}
+                  className="w-16 h-16 bg-gray-800 rounded-lg flex items-center justify-center mx-auto mb-2 shadow-lg hover:bg-gray-700 transition-colors cursor-pointer"
+                >
                   <Calendar className="h-8 w-8 text-white" />
-                </div>
+                </button>
                 <p className="text-sm font-medium text-gray-900">
                   Smart Calendar Integration
                 </p>
@@ -604,6 +609,7 @@ const Dashboard = () => {
                 <Button
                   variant="outline"
                   className="w-full justify-start border-gray-200 text-gray-800 hover:bg-gray-100 shadow-sm"
+                  onClick={toggleChat}
                 >
                   <MessageCircle className="h-4 w-4 mr-2" />
                   Chat with AI
