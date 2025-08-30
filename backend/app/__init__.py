@@ -16,7 +16,7 @@ def create_app():
     app.config['JWT_ACCESS_TOKEN_EXPIRES'] = False  # Set to False for development
     
     # Initialize extensions
-    CORS(app, origins=["http://localhost:5173", "http://localhost:3000"], supports_credentials=True)
+    CORS(app, origins=["http://localhost:5173", "http://localhost:5175", "http://localhost:3000"], supports_credentials=True)
     JWTManager(app)
     
     # Register blueprints

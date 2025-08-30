@@ -16,7 +16,7 @@ const signupSchema = z
   .object({
     username: z.string().min(3, 'Username must be at least 3 characters'),
     email: z.string().email('Please enter a valid email address'),
-    password: z.string().min(8, 'Password must be at least 8 characters'),
+    password: z.string().min(6, 'Password must be at least 6 characters'),
     confirmPassword: z.string().min(1, 'Please confirm your password'),
   })
   .refine(data => data.password === data.confirmPassword, {
@@ -60,21 +60,89 @@ const Signup = () => {
   const handleSubmit = async e => {
     e.preventDefault();
     setIsSubmitting(true);
+    setErrors({}); // Clear previous errors
 
     try {
       const validatedData = signupSchema.parse(formData);
       await register(validatedData);
-      
+
       // Redirect to home page on successful registration
       navigate('/');
-      
     } catch (error) {
       if (error instanceof z.ZodError) {
+        // Validation errors
         const newErrors = {};
         error.errors.forEach(err => {
           newErrors[err.path[0]] = err.message;
         });
         setErrors(newErrors);
+      } else if (error.error) {
+        // API errors from AuthService
+        let errorMessage = error.error;
+
+        // Map specific error messages to user-friendly text
+        if (
+          error.error.includes('already exists') ||
+          error.error.includes('already registered')
+        ) {
+          errorMessage =
+            'An account with this email already exists. Please use a different email or try logging in.';
+        } else if (
+          error.error.includes('username') &&
+          error.error.includes('taken')
+        ) {
+          errorMessage =
+            'This username is already taken. Please choose a different username.';
+        } else if (error.error.includes('Cannot connect to server')) {
+          errorMessage =
+            'Unable to connect to the server. Please check your internet connection and try again.';
+        } else if (
+          error.error.includes('password') &&
+          error.error.includes('weak')
+        ) {
+          errorMessage =
+            'Password is too weak. Please use a stronger password with at least 8 characters.';
+        } else if (
+          error.error.includes('email') &&
+          error.error.includes('invalid')
+        ) {
+          errorMessage = 'Please enter a valid email address.';
+        } else if (
+          error.error.includes('rate limit') ||
+          error.error.includes('too many')
+        ) {
+          errorMessage =
+            'Too many signup attempts. Please wait a few minutes before trying again.';
+        }
+
+        setErrors({ general: errorMessage });
+      } else if (error.response && error.response.data) {
+        // Handle axios response errors
+        const responseData = error.response.data;
+        let errorMessage = 'Registration failed. Please try again.';
+        
+        if (responseData.error) {
+          errorMessage = responseData.error;
+        } else if (responseData.message) {
+          errorMessage = responseData.message;
+        } else if (responseData.errors && Array.isArray(responseData.errors)) {
+          // Handle array of errors
+          const newErrors = {};
+          responseData.errors.forEach(err => {
+            if (err.field && err.message) {
+              newErrors[err.field] = err.message;
+            }
+          });
+          setErrors(newErrors);
+          return; // Exit early since we set field-specific errors
+        }
+        
+        setErrors({ general: errorMessage });
+      } else {
+        // Unknown errors
+        setErrors({
+          general: 'An unexpected error occurred. Please try again.',
+        });
       }
     } finally {
       setIsSubmitting(false);
@@ -99,9 +167,11 @@ const Signup = () => {
             </CardDescription>
           </CardHeader>
           <CardContent>
-            {authError && (
+            {(authError || errors.general) && (
               <div className="mb-4 p-3 bg-red-50 border border-red-200 rounded-lg">
-                <p className="text-sm text-red-600">{authError}</p>
+                <p className="text-sm text-red-600">
+                  {errors.general || authError}
+                </p>
               </div>
             )}
             <form onSubmit={handleSubmit} className="space-y-4">

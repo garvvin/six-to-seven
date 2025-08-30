@@ -51,6 +51,7 @@ const Login = () => {
   const handleSubmit = async e => {
     e.preventDefault();
     setIsSubmitting(true);
+    setErrors({}); // Clear previous errors
 
     try {
       const validatedData = loginSchema.parse(formData);
@@ -60,11 +61,47 @@ const Login = () => {
       navigate('/');
     } catch (error) {
       if (error instanceof z.ZodError) {
+        // Validation errors
         const newErrors = {};
         error.errors.forEach(err => {
           newErrors[err.path[0]] = err.message;
         });
         setErrors(newErrors);
+      } else if (error.error) {
+        // API errors from AuthService
+        let errorMessage = error.error;
+
+        // Map specific error messages to user-friendly text
+        if (
+          error.error.includes('Invalid credentials') ||
+          error.error.includes('incorrect')
+        ) {
+          errorMessage = 'Invalid email or password. Please try again.';
+        } else if (
+          error.error.includes('not found') ||
+          error.error.includes('does not exist')
+        ) {
+          errorMessage = 'No account found with this email address.';
+        } else if (error.error.includes('Cannot connect to server')) {
+          errorMessage =
+            'Unable to connect to the server. Please check your internet connection and try again.';
+        } else if (error.error.includes('too many attempts')) {
+          errorMessage =
+            'Too many login attempts. Please wait a few minutes before trying again.';
+        } else if (
+          error.error.includes('account locked') ||
+          error.error.includes('suspended')
+        ) {
+          errorMessage =
+            'Your account has been temporarily locked. Please contact support.';
+        }
+
+        setErrors({ general: errorMessage });
+      } else {
+        // Unknown errors
+        setErrors({
+          general: 'An unexpected error occurred. Please try again.',
+        });
       }
     } finally {
       setIsSubmitting(false);
@@ -89,9 +126,11 @@ const Login = () => {
             </CardDescription>
           </CardHeader>
           <CardContent>
-            {authError && (
+            {(authError || errors.general) && (
               <div className="mb-4 p-3 bg-red-50 border border-red-200 rounded-lg">
-                <p className="text-sm text-red-600">{authError}</p>
+                <p className="text-sm text-red-600">
+                  {errors.general || authError}
+                </p>
               </div>
             )}
             <form onSubmit={handleSubmit} className="space-y-4">

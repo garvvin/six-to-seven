@@ -5,6 +5,7 @@ import { Menu, X, Heart, User, LogOut } from 'lucide-react';
 import { useAuth } from '../contexts/AuthContext';
 
 const Header = () => {
+  console.log('Header component rendering');
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const location = useLocation();
   const { user, isAuthenticated, logout } = useAuth();
@@ -12,6 +13,7 @@ const Header = () => {
   const navigation = [
     { name: 'Home', href: '/' },
     { name: 'App', href: '/app' },
+    { name: 'Calendar', href: '/calendar' },
     { name: 'Team', href: '/team' },
   ];
 

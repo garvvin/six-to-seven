@@ -10,6 +10,8 @@ import ProtectedRoute from './components/ProtectedRoute';
 const Home = React.lazy(() => import('./pages/Home'));
 const Dashboard = React.lazy(() => import('./pages/App'));
 const Team = React.lazy(() => import('./pages/Team'));
+const Calendar = React.lazy(() => import('./pages/Calendar'));
+const OAuthCallback = React.lazy(() => import('./pages/OAuthCallback'));
 const Login = React.lazy(() => import('./pages/Login'));
 const Signup = React.lazy(() => import('./pages/Signup'));
 
@@ -24,21 +26,40 @@ function App() {
               <Routes>
                 <Route path="/" element={<Home />} />
                 <Route
-                  path="/app"
-                  element={
-                    <ProtectedRoute>
-                      <Dashboard />
-                    </ProtectedRoute>
-                  }
-                />
-                <Route
-                  path="/team"
-                  element={
-                    <ProtectedRoute>
-                      <Team />
-                    </ProtectedRoute>
-                  }
-                />
+                    path="/app"
+                    element={
+                      <ProtectedRoute>
+                        <Dashboard />
+                      </ProtectedRoute>
+                    }
+                  />
+                  <Route
+                    path="/team"
+                    element={
+                      <ProtectedRoute>
+                        <Team />
+                      </ProtectedRoute>
+                    }
+                  />
+
+                  <Route
+                    path="/calendar"
+                    element={
+                      <ProtectedRoute>
+                        <Calendar />
+                      </ProtectedRoute>
+                    }
+                  />
+
+                  <Route
+                    path="/oauth-callback"
+                    element={
+                      <ProtectedRoute>
+                        <OAuthCallback />
+                      </ProtectedRoute>
+                    }
+                  />
+                
                 <Route path="/login" element={<Login />} />
                 <Route path="/signup" element={<Signup />} />
               </Routes>
