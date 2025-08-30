@@ -21,7 +21,10 @@ def create_app():
     
     # Register blueprints
     from app.routes.auth import auth_bp
+    from app.routes.upload import upload_bp
+    
     app.register_blueprint(auth_bp, url_prefix='/api/auth')
+    app.register_blueprint(upload_bp, url_prefix='/api/upload')
     
     @app.route('/api/health')
     def health_check():

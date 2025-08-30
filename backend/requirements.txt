@@ -5,3 +5,4 @@ python-dotenv==1.0.0
 supabase==1.2.0
 Werkzeug==2.3.7
 httpx==0.24.1
+PyMuPDF==1.23.8
