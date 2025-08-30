@@ -91,7 +91,7 @@ const Dashboard = () => {
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-3">
               <div className="w-10 h-10 bg-gray-800 rounded-lg flex items-center justify-center shadow-md">
-                <Heart className="h-6 w-6 text-black" />
+                <Heart className="h-6 w-6 text-white" />
               </div>
               <div>
                 <h1 className="text-2xl font-bold text-gray-900">
@@ -370,10 +370,7 @@ const Dashboard = () => {
             <Card className="bg-white/80 backdrop-blur-md border-gray-200 shadow-lg">
               <CardHeader>
                 <CardTitle className="text-lg flex items-center gap-2">
-                  <Calendar
-                    className="h-5 w-5 text-black"
-                    style={{ color: 'black' }}
-                  />
+                  <Calendar className="h-5 w-5 text-black" />
                   Smart Calendar Integration
                 </CardTitle>
               </CardHeader>
@@ -383,7 +380,7 @@ const Dashboard = () => {
                   directly to Google Calendar
                 </p>
                 <div className="w-16 h-16 bg-gray-800 rounded-lg flex items-center justify-center mx-auto mb-2 shadow-lg">
-                  <Calendar className="h-8 w-8 text-black" />
+                  <Calendar className="h-8 w-8 text-white" />
                 </div>
                 <p className="text-sm font-medium text-gray-900">
                   Smart Calendar Integration
