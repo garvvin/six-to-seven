@@ -20,8 +20,11 @@ export const AuthProvider = ({ children }) => {
   useEffect(() => {
     const checkAuth = async () => {
       try {
+        console.log(
+          'AuthContext - Starting auth check, setting loading to true'
+        );
         setLoading(true);
-        
+
         // Temporarily disable connection test to prevent refresh loop
         // const isConnected = await AuthService.testConnection();
         // if (!isConnected) {
@@ -30,14 +33,20 @@ export const AuthProvider = ({ children }) => {
         //   setLoading(false);
         //   return;
         // }
-        
+
+        console.log('AuthContext - Calling AuthService.checkAuth()');
         const isAuthenticated = await AuthService.checkAuth();
+        console.log('AuthContext - checkAuth result:', isAuthenticated);
+
         if (isAuthenticated) {
-          setUser(AuthService.getCurrentUser());
+          const user = AuthService.getCurrentUser();
+          console.log('AuthContext - Setting user:', user);
+          setUser(user);
         }
       } catch (error) {
         console.error('Auth check failed:', error);
       } finally {
+        console.log('AuthContext - Setting loading to false');
         setLoading(false);
       }
     };
@@ -46,33 +55,47 @@ export const AuthProvider = ({ children }) => {
   }, []);
 
   // Login function
-  const login = async (credentials) => {
+  const login = async credentials => {
     try {
+      console.log('AuthContext - Login started, setting loading to true');
       setError(null);
       setLoading(true);
       const response = await AuthService.login(credentials);
+      console.log(
+        'AuthContext - Login successful, setting user:',
+        response.user
+      );
       setUser(response.user);
       return response;
     } catch (error) {
+      console.log('AuthContext - Login failed:', error);
       setError(error.error || 'Login failed');
       throw error;
     } finally {
+      console.log('AuthContext - Login finished, setting loading to false');
       setLoading(false);
     }
   };
 
   // Register function
-  const register = async (userData) => {
+  const register = async userData => {
     try {
+      console.log('AuthContext - Register started, setting loading to true');
       setError(null);
       setLoading(true);
       const response = await AuthService.register(userData);
+      console.log(
+        'AuthContext - Register successful, setting user:',
+        response.user
+      );
       setUser(response.user);
       return response;
     } catch (error) {
+      console.log('AuthContext - Register failed:', error);
       setError(error.error || 'Registration failed');
       throw error;
     } finally {
+      console.log('AuthContext - Register finished, setting loading to false');
       setLoading(false);
     }
   };
@@ -94,7 +117,7 @@ export const AuthProvider = ({ children }) => {
   };
 
   // Update user profile
-  const updateProfile = async (updateData) => {
+  const updateProfile = async updateData => {
     try {
       setError(null);
       const response = await AuthService.updateProfile(updateData);
@@ -118,9 +141,5 @@ export const AuthProvider = ({ children }) => {
     isAuthenticated: !!user,
   };
 
-  return (
-    <AuthContext.Provider value={value}>
-      {children}
-    </AuthContext.Provider>
-  );
+  return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
 };
