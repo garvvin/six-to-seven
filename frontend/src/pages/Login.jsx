@@ -1,24 +1,33 @@
-import { useState } from 'react';
-import { Link } from 'react-router-dom';
+import { useState, useEffect } from 'react';
+import { Link, useNavigate } from 'react-router-dom';
 import { Button } from '../components/ui/button';
 import { Input } from '../components/ui/input';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '../components/ui/card';
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from '../components/ui/card';
 import { z } from 'zod';
+import { useAuth } from '../contexts/AuthContext';
 
 const loginSchema = z.object({
-  username: z.string().min(1, 'Username is required'),
+  email: z.string().email('Please enter a valid email address'),
   password: z.string().min(6, 'Password must be at least 6 characters'),
 });
 
 const Login = () => {
+  const navigate = useNavigate();
+  const { login, isAuthenticated, error: authError, clearError } = useAuth();
   const [formData, setFormData] = useState({
-    username: '',
+    email: '',
     password: '',
   });
   const [errors, setErrors] = useState({});
   const [isSubmitting, setIsSubmitting] = useState(false);
 
-  const handleInputChange = (e) => {
+  const handleInputChange = e => {
     const { name, value } = e.target;
     setFormData(prev => ({ ...prev, [name]: value }));
     // Clear error when user starts typing
@@ -27,22 +36,28 @@ const Login = () => {
     }
   };
 
-  const handleSubmit = async (e) => {
+  // Redirect if already authenticated
+  useEffect(() => {
+    if (isAuthenticated) {
+      navigate('/');
+    }
+  }, [isAuthenticated, navigate]);
+
+  // Clear auth error when component mounts
+  useEffect(() => {
+    clearError();
+  }, [clearError]);
+
+  const handleSubmit = async e => {
     e.preventDefault();
     setIsSubmitting(true);
-    
+
     try {
       const validatedData = loginSchema.parse(formData);
-      console.log('Login data:', validatedData);
-      // TODO: Connect to backend API
-      
-      // Simulate API call
-      await new Promise(resolve => setTimeout(resolve, 1000));
-      
-      // Reset form on success
-      setFormData({ username: '', password: '' });
-      setErrors({});
-      
+      await login(validatedData);
+
+      // Redirect to home page on successful login
+      navigate('/');
     } catch (error) {
       if (error instanceof z.ZodError) {
         const newErrors = {};
@@ -63,11 +78,9 @@ const Login = () => {
           <h2 className="mt-6 text-3xl font-bold text-gray-900">
             Welcome back
           </h2>
-          <p className="mt-2 text-sm text-gray-600">
-            Sign in to your account
-          </p>
+          <p className="mt-2 text-sm text-gray-600">Sign in to your account</p>
         </div>
-        
+
         <Card className="w-full">
           <CardHeader className="space-y-1">
             <CardTitle className="text-2xl text-center">Sign in</CardTitle>
@@ -76,28 +89,39 @@ const Login = () => {
             </CardDescription>
           </CardHeader>
           <CardContent>
+            {authError && (
+              <div className="mb-4 p-3 bg-red-50 border border-red-200 rounded-lg">
+                <p className="text-sm text-red-600">{authError}</p>
+              </div>
+            )}
             <form onSubmit={handleSubmit} className="space-y-4">
               <div className="space-y-2">
-                <label htmlFor="username" className="text-sm font-medium text-gray-700">
-                  Username
+                <label
+                  htmlFor="email"
+                  className="text-sm font-medium text-gray-700"
+                >
+                  Email
                 </label>
                 <Input
-                  id="username"
-                  name="username"
-                  type="text"
-                  value={formData.username}
+                  id="email"
+                  name="email"
+                  type="email"
+                  value={formData.email}
                   onChange={handleInputChange}
-                  className={errors.username ? 'border-red-500' : ''}
-                  placeholder="Enter your username"
+                  className={errors.email ? 'border-red-500' : ''}
+                  placeholder="Enter your email"
                   required
                 />
-                {errors.username && (
-                  <p className="text-sm text-red-600">{errors.username}</p>
+                {errors.email && (
+                  <p className="text-sm text-red-600">{errors.email}</p>
                 )}
               </div>
-              
+
               <div className="space-y-2">
-                <label htmlFor="password" className="text-sm font-medium text-gray-700">
+                <label
+                  htmlFor="password"
+                  className="text-sm font-medium text-gray-700"
+                >
                   Password
                 </label>
                 <Input
@@ -114,16 +138,17 @@ const Login = () => {
                   <p className="text-sm text-red-600">{errors.password}</p>
                 )}
               </div>
-              
+
               <Button
                 type="submit"
+                variant="secondary"
                 className="w-full"
                 disabled={isSubmitting}
               >
                 {isSubmitting ? 'Signing in...' : 'Sign in'}
               </Button>
             </form>
-            
+
             <div className="mt-6 text-center">
               <p className="text-sm text-gray-600">
                 Don't have an account?{' '}
