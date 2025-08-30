@@ -102,7 +102,36 @@ class AuthService {
         };
       }
 
-      throw error.response?.data || { error: 'Registration failed' };
+      // Handle specific HTTP status codes
+      if (error.response?.status === 400) {
+        throw {
+          error:
+            error.response.data?.detail ||
+            'Invalid registration data. Please check your information.',
+        };
+      } else if (error.response?.status === 409) {
+        throw {
+          error: 'An account with this email or username already exists.',
+        };
+      } else if (error.response?.status === 422) {
+        throw {
+          error:
+            error.response.data?.detail ||
+            'Validation error. Please check your input.',
+        };
+      } else if (error.response?.status === 429) {
+        throw {
+          error: 'Too many signup attempts. Please wait before trying again.',
+        };
+      } else if (error.response?.status >= 500) {
+        throw { error: 'Server error. Please try again later.' };
+      }
+
+      throw (
+        error.response?.data || {
+          error: 'Registration failed. Please try again.',
+        }
+      );
     }
   }
 
@@ -139,7 +168,30 @@ class AuthService {
         };
       }
 
-      throw error.response?.data || { error: 'Login failed' };
+      // Handle specific HTTP status codes
+      if (error.response?.status === 400) {
+        throw { error: 'Invalid email or password. Please try again.' };
+      } else if (error.response?.status === 401) {
+        throw {
+          error: 'Invalid email or password. Please check your credentials.',
+        };
+      } else if (error.response?.status === 403) {
+        throw {
+          error: 'Account is locked or suspended. Please contact support.',
+        };
+      } else if (error.response?.status === 404) {
+        throw { error: 'No account found with this email address.' };
+      } else if (error.response?.status === 429) {
+        throw {
+          error: 'Too many login attempts. Please wait before trying again.',
+        };
+      } else if (error.response?.status >= 500) {
+        throw { error: 'Server error. Please try again later.' };
+      }
+
+      throw (
+        error.response?.data || { error: 'Login failed. Please try again.' }
+      );
     }
   }
 
