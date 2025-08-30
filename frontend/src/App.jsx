@@ -10,20 +10,21 @@ import ProtectedRoute from './components/ProtectedRoute';
 const Home = React.lazy(() => import('./pages/Home'));
 const Dashboard = React.lazy(() => import('./pages/App'));
 const Team = React.lazy(() => import('./pages/Team'));
+const Calendar = React.lazy(() => import('./pages/Calendar'));
+const OAuthCallback = React.lazy(() => import('./pages/OAuthCallback'));
 const Login = React.lazy(() => import('./pages/Login'));
 const Signup = React.lazy(() => import('./pages/Signup'));
 
 function App() {
   return (
-    <AuthProvider>
-      <Router>
-        <div className="min-h-screen flex flex-col">
-          <Header />
-          <main className="flex-1">
-            <Suspense fallback={<Loading size="lg" text="Loading page..." />}>
-              <Routes>
-                <Route path="/" element={<Home />} />
-                <Route
+    <Router>
+      <div className="min-h-screen flex flex-col">
+        <Header />
+        <main className="flex-1">
+          <Suspense fallback={<Loading size="lg" text="Loading page..." />}>
+            <Routes>
+              <Route path="/" element={<Home />} />
+              <Route
                   path="/app"
                   element={
                     <ProtectedRoute>
@@ -39,15 +40,16 @@ function App() {
                     </ProtectedRoute>
                   }
                 />
-                <Route path="/login" element={<Login />} />
-                <Route path="/signup" element={<Signup />} />
-              </Routes>
-            </Suspense>
-          </main>
-          <Footer />
-        </div>
-      </Router>
-    </AuthProvider>
+              <Route path="/calendar" element={<Calendar />} />
+              <Route path="/oauth-callback" element={<OAuthCallback />} />
+              <Route path="/login" element={<Login />} />
+              <Route path="/signup" element={<Signup />} />
+            </Routes>
+          </Suspense>
+        </main>
+        <Footer />
+      </div>
+    </Router>
   );
 }
 
