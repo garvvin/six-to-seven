@@ -350,49 +350,51 @@ const Dashboard = () => {
             </Card>
 
             {/* AI Health Recommendations Section */}
-            <Card className="bg-white/80 backdrop-blur-md border-gray-200 shadow-lg">
-              <CardHeader>
-                <CardTitle className="flex items-center gap-2">
-                  <Sparkles className="h-5 w-5 text-gray-800" />
-                  AI Health Recommendations
-                </CardTitle>
-              </CardHeader>
-              <CardContent className="space-y-4">
-                {/* Blood Test Results */}
-                <div className="flex items-center justify-between p-4 bg-gray-100 rounded-lg border border-gray-200 shadow-md">
-                  <div className="flex-1">
-                    <h4 className="font-medium text-gray-900">
-                      Blood Test Results - March 2024
-                    </h4>
-                    <span className="inline-block px-2 py-1 text-xs bg-gray-200 text-gray-800 rounded-full mt-1">
-                      Lab Results
-                    </span>
-                    <ul className="mt-2 space-y-1">
-                      <li className="flex items-center gap-2 text-sm text-gray-600">
-                        <CheckCircle className="h-4 w-4 text-gray-800" />
-                        Cholesterol levels improved by 15mg/dL
-                      </li>
-                      <li className="flex items-center gap-2 text-sm text-gray-600">
-                        <CheckCircle className="h-4 w-4 text-gray-800" />
-                        Vitamin D levels within normal range
-                        <TrendingUp className="h-3 w-3 text-gray-600" />
-                      </li>
-                    </ul>
+            {analysisResults.length > 0 && (
+              <Card className="bg-white/80 backdrop-blur-md border-gray-200 shadow-lg">
+                <CardHeader>
+                  <CardTitle className="flex items-center gap-2">
+                    <Sparkles className="h-5 w-5 text-gray-800" />
+                    AI Health Recommendations
+                  </CardTitle>
+                </CardHeader>
+                <CardContent className="space-y-4">
+                  {/* Blood Test Results */}
+                  <div className="flex items-center justify-between p-4 bg-gray-100 rounded-lg border border-gray-200 shadow-md">
+                    <div className="flex-1">
+                      <h4 className="font-medium text-gray-900">
+                        Blood Test Results - March 2024
+                      </h4>
+                      <span className="inline-block px-2 py-1 text-xs bg-gray-200 text-gray-800 rounded-full mt-1">
+                        Lab Results
+                      </span>
+                      <ul className="mt-2 space-y-1">
+                        <li className="flex items-center gap-2 text-sm text-gray-600">
+                          <CheckCircle className="h-4 w-4 text-gray-800" />
+                          Cholesterol levels improved by 15mg/dL
+                        </li>
+                        <li className="flex items-center gap-2 text-sm text-gray-600">
+                          <CheckCircle className="h-4 w-4 text-gray-800" />
+                          Vitamin D levels within normal range
+                          <TrendingUp className="h-3 w-3 text-gray-600" />
+                        </li>
+                      </ul>
+                    </div>
+                    <CheckCircle className="h-6 w-6 text-gray-800" />
                   </div>
-                  <CheckCircle className="h-6 w-6 text-gray-800" />
-                </div>
 
-                {/* Prescription */}
-                <div className="flex items-center justify-between p-4 bg-gray-100 rounded-lg border border-gray-200 shadow-md">
-                  <div className="flex-1">
-                    <h4 className="font-medium text-gray-900">
-                      Prescription - Dr. Smith
-                    </h4>
+                  {/* Prescription */}
+                  <div className="flex items-center justify-between p-4 bg-gray-100 rounded-lg border border-gray-200 shadow-md">
+                    <div className="flex-1">
+                      <h4 className="font-medium text-gray-900">
+                        Prescription - Dr. Smith
+                      </h4>
+                    </div>
+                    <CheckCircle className="h-6 w-6 text-gray-800" />
                   </div>
-                  <CheckCircle className="h-6 w-6 text-gray-800" />
-                </div>
-              </CardContent>
-            </Card>
+                </CardContent>
+              </Card>
+            )}
 
             {/* PDF Analysis Results Section */}
             {analysisResults.length > 0 && (
@@ -450,45 +452,48 @@ const Dashboard = () => {
             )}
 
             {/* Health Insights Section */}
-            <Card className="bg-white/80 backdrop-blur-md border-gray-200 shadow-lg">
-              <CardHeader>
-                <CardTitle className="flex items-center gap-2">
-                  <TrendingUp className="h-5 w-5 text-gray-800" />
-                  Health Insights
-                </CardTitle>
-              </CardHeader>
-              <CardContent className="space-y-4">
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  <div className="p-4 bg-gray-100 rounded-lg border border-gray-200 shadow-md">
-                    <div className="flex items-center gap-3 mb-2">
-                      <div className="w-8 h-8 bg-gray-200 rounded-full flex items-center justify-center shadow-sm">
-                        <Heart className="h-4 w-4 text-gray-800" />
+            {analysisResults.length > 0 && (
+              <Card className="bg-white/80 backdrop-blur-md border-gray-200 shadow-lg">
+                <CardHeader>
+                  <CardTitle className="flex items-center gap-2">
+                    <TrendingUp className="h-5 w-5 text-gray-800" />
+                    Health Insights
+                  </CardTitle>
+                </CardHeader>
+                <CardContent className="space-y-4">
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div className="p-4 bg-gray-100 rounded-lg border border-gray-200 shadow-md">
+                      <div className="flex items-center gap-3 mb-2">
+                        <div className="w-8 h-8 bg-gray-200 rounded-full flex items-center justify-center shadow-sm">
+                          <Heart className="h-4 w-4 text-gray-800" />
+                        </div>
+                        <span className="text-sm font-medium text-gray-900">
+                          Heart Health
+                        </span>
                       </div>
-                      <span className="text-sm font-medium text-gray-900">
-                        Heart Health
-                      </span>
+                      <p className="text-sm text-gray-600">
+                        Your heart rate variability has improved by 12% this
+                        month
+                      </p>
                     </div>
-                    <p className="text-sm text-gray-600">
-                      Your heart rate variability has improved by 12% this month
-                    </p>
-                  </div>
 
-                  <div className="p-4 bg-gray-100 rounded-lg border border-gray-200 shadow-md">
-                    <div className="flex items-center gap-3 mb-2">
-                      <div className="w-8 h-8 bg-gray-200 rounded-full flex items-center justify-center shadow-sm">
-                        <TrendingUp className="h-4 w-4 text-gray-800" />
+                    <div className="p-4 bg-gray-100 rounded-lg border border-gray-200 shadow-md">
+                      <div className="flex items-center gap-3 mb-2">
+                        <div className="w-8 h-8 bg-gray-200 rounded-full flex items-center justify-center shadow-sm">
+                          <TrendingUp className="h-4 w-4 text-gray-800" />
+                        </div>
+                        <span className="text-sm font-medium text-gray-900">
+                          Activity Level
+                        </span>
                       </div>
-                      <span className="text-sm font-medium text-gray-900">
-                        Activity Level
-                      </span>
+                      <p className="text-sm text-gray-600">
+                        You've met your weekly exercise goal 3 weeks in a row
+                      </p>
                     </div>
-                    <p className="text-sm text-gray-600">
-                      You've met your weekly exercise goal 3 weeks in a row
-                    </p>
                   </div>
-                </div>
-              </CardContent>
-            </Card>
+                </CardContent>
+              </Card>
+            )}
           </div>
 
           {/* Right Column - Sidebar */}
