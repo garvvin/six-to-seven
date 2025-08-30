@@ -3,6 +3,8 @@ import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import Header from './components/Header';
 import Footer from './components/Footer';
 import Loading from './components/Loading';
+import { AuthProvider } from './contexts/AuthContext';
+import ProtectedRoute from './components/ProtectedRoute';
 
 // Lazy load pages for better performance
 const Home = React.lazy(() => import('./pages/Home'));
@@ -22,8 +24,22 @@ function App() {
           <Suspense fallback={<Loading size="lg" text="Loading page..." />}>
             <Routes>
               <Route path="/" element={<Home />} />
-              <Route path="/app" element={<Dashboard />} />
-              <Route path="/team" element={<Team />} />
+              <Route
+                  path="/app"
+                  element={
+                    <ProtectedRoute>
+                      <Dashboard />
+                    </ProtectedRoute>
+                  }
+                />
+                <Route
+                  path="/team"
+                  element={
+                    <ProtectedRoute>
+                      <Team />
+                    </ProtectedRoute>
+                  }
+                />
               <Route path="/calendar" element={<Calendar />} />
               <Route path="/oauth-callback" element={<OAuthCallback />} />
               <Route path="/login" element={<Login />} />

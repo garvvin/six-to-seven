@@ -1,11 +1,14 @@
 import { useState } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { Button } from './ui/button';
-import { Menu, X, Heart } from 'lucide-react';
+import { Menu, X, Heart, User, LogOut } from 'lucide-react';
+import { useAuth } from '../contexts/AuthContext';
 
 const Header = () => {
+  console.log('Header component rendering');
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const location = useLocation();
+  const { user, isAuthenticated, logout } = useAuth();
 
   const navigation = [
     { name: 'Home', href: '/' },
@@ -55,16 +58,27 @@ const Header = () => {
 
           {/* Auth Buttons */}
           <div className="hidden md:flex items-center space-x-3">
-            <Link to="/login">
-              <Button variant="outline">
-                Login
-              </Button>
-            </Link>
-            <Link to="/signup">
-              <Button>
-                Sign Up
-              </Button>
-            </Link>
+            {isAuthenticated ? (
+              <div className="flex items-center space-x-3">
+                <div className="flex items-center space-x-2 text-sm text-gray-700">
+                  <User className="h-4 w-4" />
+                  <span>{user?.username}</span>
+                </div>
+                <Button variant="outline" onClick={logout} size="sm">
+                  <LogOut className="h-4 w-4 mr-2" />
+                  Logout
+                </Button>
+              </div>
+            ) : (
+              <>
+                <Link to="/login">
+                  <Button variant="outline">Login</Button>
+                </Link>
+                <Link to="/signup">
+                  <Button variant="secondary">Sign Up</Button>
+                </Link>
+              </>
+            )}
           </div>
 
           {/* Mobile menu button */}
@@ -112,25 +126,44 @@ const Header = () => {
                   {item.name}
                 </Link>
               ))}
-              
+
               {/* Mobile Auth Buttons */}
               <div className="pt-4 pb-3 border-t border-gray-200">
-                <div className="space-y-2">
-                  <Link
-                    to="/login"
-                    onClick={closeMenu}
-                    className="block w-full text-center px-3 py-2 rounded-lg text-base font-medium text-gray-600 hover:text-gray-900 hover:bg-gray-50 transition-colors"
-                  >
-                    Login
-                  </Link>
-                  <Link
-                    to="/signup"
-                    onClick={closeMenu}
-                    className="block w-full text-center px-3 py-2 rounded-lg text-base font-medium bg-primary-600 text-white hover:bg-primary-700 transition-colors"
-                  >
-                    Sign Up
-                  </Link>
-                </div>
+                {isAuthenticated ? (
+                  <div className="space-y-2">
+                    <div className="flex items-center justify-center space-x-2 px-3 py-2 text-base font-medium text-gray-700">
+                      <User className="h-4 w-4" />
+                      <span>{user?.username}</span>
+                    </div>
+                    <button
+                      onClick={() => {
+                        logout();
+                        closeMenu();
+                      }}
+                      className="block w-full text-center px-3 py-2 rounded-lg text-base font-medium bg-gray-700 text-white hover:bg-gray-800 transition-colors"
+                    >
+                      <LogOut className="h-4 w-4 inline mr-2" />
+                      Logout
+                    </button>
+                  </div>
+                ) : (
+                  <div className="space-y-2">
+                    <Link
+                      to="/login"
+                      onClick={closeMenu}
+                      className="block w-full text-center px-3 py-2 rounded-lg text-base font-medium text-gray-600 hover:text-gray-900 hover:bg-gray-50 transition-colors"
+                    >
+                      Login
+                    </Link>
+                    <Link
+                      to="/signup"
+                      onClick={closeMenu}
+                      className="block w-full text-center px-3 py-2 rounded-lg text-base font-medium bg-gray-700 text-white hover:bg-gray-800 transition-colors"
+                    >
+                      Sign Up
+                    </Link>
+                  </div>
+                )}
               </div>
             </div>
           </div>

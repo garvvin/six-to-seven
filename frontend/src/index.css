@@ -58,21 +58,21 @@ body {
 }
 
 .btn-secondary {
-  background-color: rgb(243 244 246);
-  color: rgb(55 65 81);
+  background-color: rgb(241 245 249);
+  color: rgb(71 85 105);
 }
 
 .btn-secondary:hover {
-  background-color: rgb(229 231 235);
+  background-color: rgb(226 232 240);
 }
 
 .btn-ghost {
-  color: rgb(75 85 99);
+  color: rgb(100 116 139);
 }
 
 .btn-ghost:hover {
-  background-color: rgb(243 244 246);
-  color: rgb(17 24 39);
+  background-color: rgb(241 245 249);
+  color: rgb(15 23 42);
 }
 
 .card {
