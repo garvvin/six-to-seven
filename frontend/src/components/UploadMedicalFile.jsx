@@ -1,7 +1,21 @@
 import React, { useState, useRef } from 'react';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from './ui/card';
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from './ui/card';
 import { Button } from './ui/button';
-import { Upload, FileText, Plus, X, Eye, CheckCircle, Send } from 'lucide-react';
+import {
+  Upload,
+  FileText,
+  Plus,
+  X,
+  Eye,
+  CheckCircle,
+  Send,
+} from 'lucide-react';
 
 const UploadMedicalFile = () => {
   const [dragActive, setDragActive] = useState(false);
@@ -13,60 +27,62 @@ const UploadMedicalFile = () => {
   const [error, setError] = useState(null);
   const fileInputRef = useRef(null);
 
-  const handleDrag = (e) => {
+  const handleDrag = e => {
     e.preventDefault();
     e.stopPropagation();
-    if (e.type === "dragenter" || e.type === "dragover") {
+    if (e.type === 'dragenter' || e.type === 'dragover') {
       setDragActive(true);
-    } else if (e.type === "dragleave") {
+    } else if (e.type === 'dragleave') {
       setDragActive(false);
     }
   };
 
-  const handleDrop = (e) => {
+  const handleDrop = e => {
     e.preventDefault();
     e.stopPropagation();
     setDragActive(false);
-    
+
     if (e.dataTransfer.files && e.dataTransfer.files[0]) {
       handleFiles(e.dataTransfer.files);
     }
   };
 
-  const handleFiles = (fileList) => {
+  const handleFiles = fileList => {
     const newFiles = Array.from(fileList).map(file => ({
       id: Date.now() + Math.random(),
       file,
       name: file.name,
       size: file.size,
       type: file.type,
-      status: 'pending' // pending = not uploaded yet
+      status: 'pending', // pending = not uploaded yet
     }));
-    
+
     setFiles(prev => [...prev, ...newFiles]);
   };
 
-  const handleFileSelect = (e) => {
+  const handleFileSelect = e => {
     if (e.target.files && e.target.files[0]) {
       handleFiles(e.target.files);
     }
   };
 
-  const removeFile = (fileId) => {
+  const removeFile = fileId => {
     setFiles(prev => prev.filter(f => f.id !== fileId));
     if (ocrResults) setOcrResults(null);
     if (error) setError(null);
   };
 
-  const uploadFile = async (fileObj) => {
+  const uploadFile = async fileObj => {
     console.log('Starting upload for file:', fileObj.name);
     console.log('File type:', fileObj.type);
-    
+
     // Check if it's a PDF by MIME type or file extension
-    const isPDF = fileObj.type === 'application/pdf' || 
-                  fileObj.name.toLowerCase().endsWith('.pdf') ||
-                  fileObj.type === 'application/octet-stream' && fileObj.name.toLowerCase().endsWith('.pdf');
-    
+    const isPDF =
+      fileObj.type === 'application/pdf' ||
+      fileObj.name.toLowerCase().endsWith('.pdf') ||
+      (fileObj.type === 'application/octet-stream' &&
+        fileObj.name.toLowerCase().endsWith('.pdf'));
+
     if (!isPDF) {
       console.log('File type mismatch. Expected: PDF, Got:', fileObj.type);
       setError('Only PDF files are supported for OCR processing');
@@ -78,25 +94,24 @@ const UploadMedicalFile = () => {
     setOcrResults(null);
 
     // Update file status to uploading
-    setFiles(prev => 
-      prev.map(f => 
-        f.id === fileObj.id 
-          ? { ...f, status: 'uploading' }
-          : f
-      )
+    setFiles(prev =>
+      prev.map(f => (f.id === fileObj.id ? { ...f, status: 'uploading' } : f))
     );
 
     try {
       const formData = new FormData();
       formData.append('file', fileObj.file);
-      
+
       console.log('Sending request to backend...');
       console.log('FormData entries:', Array.from(formData.entries()));
 
-      const response = await fetch('http://localhost:5000/api/upload/upload-pdf', {
-        method: 'POST',
-        body: formData,
-      });
+      const response = await fetch(
+        'http://localhost:5005/api/upload/upload-pdf',
+        {
+          method: 'POST',
+          body: formData,
+        }
+      );
 
       console.log('Response status:', response.status);
       console.log('Response ok:', response.ok);
@@ -114,28 +129,19 @@ const UploadMedicalFile = () => {
 
       const result = await response.json();
       console.log('Backend result:', result);
-      
+
       // Update file status to uploaded
-      setFiles(prev => 
-        prev.map(f => 
-          f.id === fileObj.id 
-            ? { ...f, status: 'uploaded' }
-            : f
-        )
+      setFiles(prev =>
+        prev.map(f => (f.id === fileObj.id ? { ...f, status: 'uploaded' } : f))
       );
 
       // Set OCR results
       setOcrResults(result.data);
-      
     } catch (err) {
       console.error('Upload error:', err);
       setError(err.message);
-      setFiles(prev => 
-        prev.map(f => 
-          f.id === fileObj.id 
-            ? { ...f, status: 'error' }
-            : f
-        )
+      setFiles(prev =>
+        prev.map(f => (f.id === fileObj.id ? { ...f, status: 'error' } : f))
       );
     } finally {
       setUploading(false);
@@ -144,9 +150,9 @@ const UploadMedicalFile = () => {
 
   const uploadAllFiles = async () => {
     console.log('Uploading all pending files...');
-    
+
     const pendingFiles = files.filter(f => f.status === 'pending');
-    
+
     if (pendingFiles.length === 0) {
       setError('No files to upload');
       return;
@@ -171,10 +177,12 @@ const UploadMedicalFile = () => {
 
   const checkThroughDocuments = async () => {
     console.log('Checking through all uploaded documents...');
-    
+
     // Find the first uploaded PDF file
-    const uploadedFile = files.find(f => f.status === 'uploaded' && f.type === 'application/pdf');
-    
+    const uploadedFile = files.find(
+      f => f.status === 'uploaded' && f.type === 'application/pdf'
+    );
+
     if (!uploadedFile) {
       setError('No uploaded PDF documents found to check through');
       return;
@@ -184,7 +192,7 @@ const UploadMedicalFile = () => {
     await uploadFile(uploadedFile);
   };
 
-  const formatFileSize = (bytes) => {
+  const formatFileSize = bytes => {
     if (bytes === 0) return '0 Bytes';
     const k = 1024;
     const sizes = ['Bytes', 'KB', 'MB', 'GB'];
@@ -192,7 +200,7 @@ const UploadMedicalFile = () => {
     return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
   };
 
-  const getFileIcon = (fileType) => {
+  const getFileIcon = fileType => {
     if (fileType.includes('pdf')) return '📄';
     if (fileType.includes('image')) return '🖼️';
     if (fileType.includes('text') || fileType.includes('doc')) return '📝';
@@ -207,7 +215,7 @@ const UploadMedicalFile = () => {
         size: textInput.length,
         type: 'text/plain',
         status: 'uploaded',
-        content: textInput
+        content: textInput,
       };
       setFiles(prev => [...prev, textFile]);
       setTextInput('');
@@ -223,15 +231,16 @@ const UploadMedicalFile = () => {
           Upload Medical Documents
         </CardTitle>
         <CardDescription>
-          Drag & drop your prescriptions, lab results, or doctor notes for instant AI analysis.
+          Drag & drop your prescriptions, lab results, or doctor notes for
+          instant AI analysis.
         </CardDescription>
       </CardHeader>
       <CardContent className="space-y-4">
         {/* Upload Area */}
         <div
           className={`relative border-2 border-dashed rounded-lg p-8 text-center transition-colors ${
-            dragActive 
-              ? 'border-blue-500 bg-blue-50' 
+            dragActive
+              ? 'border-blue-500 bg-blue-50'
               : 'border-gray-300 hover:border-gray-400'
           }`}
           onDragEnter={handleDrag}
@@ -251,10 +260,10 @@ const UploadMedicalFile = () => {
               onClick={() => fileInputRef.current?.click()}
             >
               click to browse files
-            </button>
-            {' '}(PDF only for OCR)
+            </button>{' '}
+            (PDF only for OCR)
           </p>
-          
+
           <Button
             onClick={() => fileInputRef.current?.click()}
             className="mb-4"
@@ -262,11 +271,11 @@ const UploadMedicalFile = () => {
             <Plus className="h-4 w-4 mr-2" />
             Choose Files
           </Button>
-          
+
           <p className="text-sm text-gray-500">
             PDF files only for OCR processing (Max 10MB each)
           </p>
-          
+
           <input
             ref={fileInputRef}
             type="file"
@@ -292,16 +301,19 @@ const UploadMedicalFile = () => {
               </Button>
             </div>
             <p className="text-xs text-gray-500">
-              Click to upload all selected PDF files to the backend for OCR processing
+              Click to upload all selected PDF files to the backend for OCR
+              processing
             </p>
           </div>
         )}
 
-e         {/* Check Through Documents Button */}
+        {/* Check Through Documents Button */}
         {files.some(f => f.status === 'uploaded') && (
           <div className="border-t pt-4">
             <div className="flex items-center justify-between mb-2">
-              <p className="text-sm text-gray-600">Process uploaded documents</p>
+              <p className="text-sm text-gray-600">
+                Process uploaded documents
+              </p>
               <Button
                 onClick={checkThroughDocuments}
                 disabled={uploading}
@@ -312,7 +324,8 @@ e         {/* Check Through Documents Button */}
               </Button>
             </div>
             <p className="text-xs text-gray-500">
-              This will process the uploaded PDF and convert it to structured JSON format
+              This will process the uploaded PDF and convert it to structured
+              JSON format
             </p>
           </div>
         )}
@@ -320,7 +333,9 @@ e         {/* Check Through Documents Button */}
         {/* Text Input Option */}
         <div className="border-t pt-4">
           <div className="flex items-center justify-between mb-2">
-            <p className="text-sm text-gray-600">Or paste document text directly</p>
+            <p className="text-sm text-gray-600">
+              Or paste document text directly
+            </p>
             <Button
               variant="outline"
               size="sm"
@@ -329,12 +344,12 @@ e         {/* Check Through Documents Button */}
               {showTextInput ? 'Cancel' : 'Add Text'}
             </Button>
           </div>
-          
+
           {showTextInput && (
             <div className="space-y-2">
               <textarea
                 value={textInput}
-                onChange={(e) => setTextInput(e.target.value)}
+                onChange={e => setTextInput(e.target.value)}
                 placeholder="Paste your medical document text here..."
                 className="w-full p-3 border border-gray-300 rounded-md resize-none"
                 rows={4}
@@ -343,8 +358,8 @@ e         {/* Check Through Documents Button */}
                 <Button onClick={handleTextSubmit} disabled={!textInput.trim()}>
                   Submit Text
                 </Button>
-                <Button 
-                  variant="outline" 
+                <Button
+                  variant="outline"
                   onClick={() => {
                     setTextInput('');
                     setShowTextInput(false);
@@ -362,7 +377,7 @@ e         {/* Check Through Documents Button */}
           <div className="border-t pt-4">
             <h4 className="font-medium text-gray-900 mb-3">Selected Files</h4>
             <div className="space-y-2">
-              {files.map((file) => (
+              {files.map(file => (
                 <div
                   key={file.id}
                   className="flex items-center justify-between p-3 bg-gray-50 rounded-lg"
@@ -376,7 +391,7 @@ e         {/* Check Through Documents Button */}
                       </p>
                     </div>
                   </div>
-                  
+
                   <div className="flex items-center gap-2">
                     {file.status === 'pending' && (
                       <Button
