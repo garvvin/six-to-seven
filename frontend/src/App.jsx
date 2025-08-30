@@ -8,6 +8,8 @@ import Loading from './components/Loading';
 const Home = React.lazy(() => import('./pages/Home'));
 const Dashboard = React.lazy(() => import('./pages/App'));
 const Team = React.lazy(() => import('./pages/Team'));
+const Calendar = React.lazy(() => import('./pages/Calendar'));
+const OAuthCallback = React.lazy(() => import('./pages/OAuthCallback'));
 const Login = React.lazy(() => import('./pages/Login'));
 const Signup = React.lazy(() => import('./pages/Signup'));
 
@@ -22,6 +24,8 @@ function App() {
               <Route path="/" element={<Home />} />
               <Route path="/app" element={<Dashboard />} />
               <Route path="/team" element={<Team />} />
+              <Route path="/calendar" element={<Calendar />} />
+              <Route path="/oauth-callback" element={<OAuthCallback />} />
               <Route path="/login" element={<Login />} />
               <Route path="/signup" element={<Signup />} />
             </Routes>
