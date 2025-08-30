@@ -31,6 +31,9 @@ const Dashboard = () => {
   const [isChatOpen, setIsChatOpen] = React.useState(false);
   const [message, setMessage] = React.useState('');
   const [selectedFiles, setSelectedFiles] = React.useState([]);
+  const [isAnalyzing, setIsAnalyzing] = React.useState(false);
+  const [analysisResults, setAnalysisResults] = React.useState([]);
+  const [analysisError, setAnalysisError] = React.useState(null);
   const fileInputRef = React.useRef(null);
 
   const toggleChat = () => {
@@ -52,6 +55,85 @@ const Dashboard = () => {
     setMessage('');
   };
 
+  const handleAnalyzeWithAI = async () => {
+    if (isAnalyzing) return; // Prevent multiple clicks during cooldown
+
+    setIsAnalyzing(true);
+    console.log('Analyzing with AI...');
+
+    try {
+      // Check if there are selected files
+      if (selectedFiles.length === 0) {
+        console.log('No files selected for analysis');
+        setIsAnalyzing(false);
+        return;
+      }
+
+      // Get the API base URL from environment or use fallback
+      const API_BASE_URL =
+        import.meta.env.VITE_API_BASE_URL || 'http://localhost:5005';
+
+      // Process each selected file
+      for (const fileData of selectedFiles) {
+        // Only process PDF files as per backend requirements
+        if (fileData.type.includes('pdf')) {
+          console.log(`Processing PDF file: ${fileData.name}`);
+
+          // Create FormData to send the file
+          const formData = new FormData();
+          formData.append('file', fileData.file);
+
+          // Send POST request to backend
+          const response = await fetch(
+            `${API_BASE_URL}/api/upload/upload-pdf`,
+            {
+              method: 'POST',
+              body: formData,
+            }
+          );
+
+          if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`);
+          }
+
+          const result = await response.json();
+          console.log('Backend OCR result:', result);
+
+          // Here you can handle the OCR results
+          // For example, display them in the UI or store them in state
+          if (result.success) {
+            console.log('PDF processed successfully:', result.data);
+            // Store the OCR results in state
+            setAnalysisResults(prev => [
+              ...prev,
+              {
+                fileName: fileData.name,
+                data: result.data,
+                timestamp: new Date().toISOString(),
+              },
+            ]);
+          } else {
+            console.error('PDF processing failed:', result.error);
+            setAnalysisError(
+              `Failed to process ${fileData.name}: ${result.error}`
+            );
+          }
+        } else {
+          console.log(
+            `Skipping non-PDF file: ${fileData.name} (type: ${fileData.type})`
+          );
+        }
+      }
+
+      console.log('AI analysis completed successfully');
+    } catch (error) {
+      console.error('Error during AI analysis:', error);
+      setAnalysisError(`Analysis failed: ${error.message}`);
+    } finally {
+      setIsAnalyzing(false);
+    }
+  };
+
   const handleFileSelect = event => {
     const files = Array.from(event.target.files);
     const newFiles = files.map(file => ({
@@ -62,10 +144,22 @@ const Dashboard = () => {
       type: file.type,
     }));
     setSelectedFiles(prev => [...prev, ...newFiles]);
+
+    // Clear previous analysis results when new files are selected
+    if (files.length > 0) {
+      setAnalysisResults([]);
+      setAnalysisError(null);
+    }
   };
 
   const removeFile = fileId => {
     setSelectedFiles(prev => prev.filter(f => f.id !== fileId));
+  };
+
+  const clearAllFiles = () => {
+    setSelectedFiles([]);
+    setAnalysisResults([]);
+    setAnalysisError(null);
   };
 
   const formatFileSize = bytes => {
@@ -128,8 +222,10 @@ const Dashboard = () => {
               <CardContent className="p-6">
                 <div className="mb-4">
                   <p className="text-sm text-gray-600 mb-2">
-                    Supported formats: PDF, JPG, PNG, DOC, DOCX, TXT (Max 10MB
-                    each)
+                    <strong>AI Analysis:</strong> PDF files only (Max 10MB each)
+                  </p>
+                  <p className="text-sm text-gray-600">
+                    Other formats: JPG, PNG, DOC, DOCX, TXT (Max 10MB each)
                   </p>
                   <p className="text-sm text-gray-600">
                     Or paste document text directly
@@ -171,9 +267,20 @@ const Dashboard = () => {
                 {/* Selected Files Display */}
                 {selectedFiles.length > 0 && (
                   <div className="mb-4">
-                    <h4 className="text-sm font-medium text-gray-900 mb-3">
-                      Selected Files:
-                    </h4>
+                    <div className="flex items-center justify-between mb-3">
+                      <h4 className="text-sm font-medium text-gray-900">
+                        Selected Files:
+                      </h4>
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        className="text-red-600 border-red-300 hover:bg-red-50"
+                        onClick={clearAllFiles}
+                      >
+                        <X className="h-4 w-4 mr-1" />
+                        Clear All
+                      </Button>
+                    </div>
                     <div className="space-y-2">
                       {selectedFiles.map(file => (
                         <div
@@ -213,10 +320,35 @@ const Dashboard = () => {
                   />
                 </div>
 
-                <Button className="w-full bg-gray-800 hover:bg-gray-900 text-white shadow-lg">
-                  <Sparkles className="h-4 w-4 mr-2" />
-                  Analyze with AI
+                <Button
+                  className="w-full bg-gray-800 hover:bg-gray-900 text-white shadow-lg disabled:opacity-50 disabled:cursor-not-allowed"
+                  onClick={handleAnalyzeWithAI}
+                  disabled={
+                    isAnalyzing ||
+                    selectedFiles.filter(f => f.type.includes('pdf')).length ===
+                      0
+                  }
+                >
+                  {isAnalyzing ? (
+                    <>
+                      <RefreshCw className="h-4 w-4 mr-2 animate-spin" />
+                      Analyzing PDFs...
+                    </>
+                  ) : (
+                    <>
+                      <Sparkles className="h-4 w-4 mr-2" />
+                      Analyze with AI (PDF files only)
+                    </>
+                  )}
                 </Button>
+
+                {selectedFiles.length > 0 &&
+                  selectedFiles.filter(f => f.type.includes('pdf')).length ===
+                    0 && (
+                    <p className="text-sm text-amber-600 mt-2 text-center">
+                      No PDF files selected. AI analysis requires PDF documents.
+                    </p>
+                  )}
               </CardContent>
             </Card>
 
@@ -264,6 +396,61 @@ const Dashboard = () => {
                 </div>
               </CardContent>
             </Card>
+
+            {/* PDF Analysis Results Section */}
+            {analysisResults.length > 0 && (
+              <Card className="bg-white/80 backdrop-blur-md border-gray-200 shadow-lg">
+                <CardHeader>
+                  <CardTitle className="flex items-center gap-2">
+                    <Sparkles className="h-5 w-5 text-gray-800" />
+                    PDF Analysis Results
+                  </CardTitle>
+                </CardHeader>
+                <CardContent className="space-y-4">
+                  {analysisResults.map((result, index) => (
+                    <div
+                      key={index}
+                      className="p-4 bg-gray-100 rounded-lg border border-gray-200 shadow-md"
+                    >
+                      <div className="flex items-center justify-between mb-3">
+                        <h4 className="font-medium text-gray-900">
+                          {result.fileName}
+                        </h4>
+                        <span className="text-xs text-gray-500">
+                          {new Date(result.timestamp).toLocaleString()}
+                        </span>
+                      </div>
+                      <div className="bg-white p-3 rounded border border-gray-200">
+                        <pre className="text-sm text-gray-700 whitespace-pre-wrap overflow-x-auto">
+                          {JSON.stringify(result.data, null, 2)}
+                        </pre>
+                      </div>
+                    </div>
+                  ))}
+                </CardContent>
+              </Card>
+            )}
+
+            {/* Analysis Error Display */}
+            {analysisError && (
+              <Card className="bg-red-50 border-red-200 shadow-lg">
+                <CardContent className="p-4">
+                  <div className="flex items-center gap-2 text-red-800">
+                    <X className="h-5 w-5" />
+                    <span className="font-medium">Analysis Error</span>
+                  </div>
+                  <p className="text-red-700 mt-2">{analysisError}</p>
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    className="mt-3 border-red-300 text-red-700 hover:bg-red-100"
+                    onClick={() => setAnalysisError(null)}
+                  >
+                    Dismiss
+                  </Button>
+                </CardContent>
+              </Card>
+            )}
 
             {/* Health Insights Section */}
             <Card className="bg-white/80 backdrop-blur-md border-gray-200 shadow-lg">
