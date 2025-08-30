@@ -225,9 +225,6 @@ const Dashboard = () => {
                     <strong>AI Analysis:</strong> PDF files only (Max 10MB each)
                   </p>
                   <p className="text-sm text-gray-600">
-                    Other formats: JPG, PNG, DOC, DOCX, TXT (Max 10MB each)
-                  </p>
-                  <p className="text-sm text-gray-600">
                     Or paste document text directly
                   </p>
                 </div>
@@ -257,7 +254,7 @@ const Dashboard = () => {
                       ref={fileInputRef}
                       type="file"
                       multiple
-                      accept=".pdf,.jpg,.jpeg,.png,.doc,.docx,.txt"
+                      accept=".pdf"
                       onChange={handleFileSelect}
                       className="hidden"
                     />
@@ -587,6 +584,7 @@ const Dashboard = () => {
                 <Button
                   variant="outline"
                   className="w-full justify-start border-gray-200 text-gray-800 hover:bg-gray-100 shadow-sm"
+                  onClick={() => fileInputRef.current?.click()}
                 >
                   <Upload className="h-4 w-4 mr-2" />
                   Upload New Document
