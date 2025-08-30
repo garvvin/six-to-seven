@@ -16,7 +16,7 @@ const signupSchema = z
   .object({
     username: z.string().min(3, 'Username must be at least 3 characters'),
     email: z.string().email('Please enter a valid email address'),
-    password: z.string().min(8, 'Password must be at least 8 characters'),
+    password: z.string().min(6, 'Password must be at least 6 characters'),
     confirmPassword: z.string().min(1, 'Please confirm your password'),
   })
   .refine(data => data.password === data.confirmPassword, {
@@ -115,6 +115,28 @@ const Signup = () => {
             'Too many signup attempts. Please wait a few minutes before trying again.';
         }
 
+        setErrors({ general: errorMessage });
+      } else if (error.response && error.response.data) {
+        // Handle axios response errors
+        const responseData = error.response.data;
+        let errorMessage = 'Registration failed. Please try again.';
+        
+        if (responseData.error) {
+          errorMessage = responseData.error;
+        } else if (responseData.message) {
+          errorMessage = responseData.message;
+        } else if (responseData.errors && Array.isArray(responseData.errors)) {
+          // Handle array of errors
+          const newErrors = {};
+          responseData.errors.forEach(err => {
+            if (err.field && err.message) {
+              newErrors[err.field] = err.message;
+            }
+          });
+          setErrors(newErrors);
+          return; // Exit early since we set field-specific errors
+        }
+        
         setErrors({ general: errorMessage });
       } else {
         // Unknown errors

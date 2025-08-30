@@ -17,39 +17,58 @@ const Signup = React.lazy(() => import('./pages/Signup'));
 
 function App() {
   return (
-    <Router>
-      <div className="min-h-screen flex flex-col">
-        <Header />
-        <main className="flex-1">
-          <Suspense fallback={<Loading size="lg" text="Loading page..." />}>
-            <Routes>
-              <Route path="/" element={<Home />} />
-              <Route
-                  path="/app"
-                  element={
-                    <ProtectedRoute>
-                      <Dashboard />
-                    </ProtectedRoute>
-                  }
-                />
+    <AuthProvider>
+      <Router>
+        <div className="min-h-screen flex flex-col">
+          <Header />
+          <main className="flex-1">
+            <Suspense fallback={<Loading size="lg" text="Loading page..." />}>
+              <Routes>
+                <Route path="/" element={<Home />} />
                 <Route
-                  path="/team"
-                  element={
-                    <ProtectedRoute>
-                      <Team />
-                    </ProtectedRoute>
-                  }
-                />
-              <Route path="/calendar" element={<Calendar />} />
-              <Route path="/oauth-callback" element={<OAuthCallback />} />
-              <Route path="/login" element={<Login />} />
-              <Route path="/signup" element={<Signup />} />
-            </Routes>
-          </Suspense>
-        </main>
-        <Footer />
-      </div>
-    </Router>
+                    path="/app"
+                    element={
+                      <ProtectedRoute>
+                        <Dashboard />
+                      </ProtectedRoute>
+                    }
+                  />
+                  <Route
+                    path="/team"
+                    element={
+                      <ProtectedRoute>
+                        <Team />
+                      </ProtectedRoute>
+                    }
+                  />
+
+                  <Route
+                    path="/calendar"
+                    element={
+                      <ProtectedRoute>
+                        <Calendar />
+                      </ProtectedRoute>
+                    }
+                  />
+
+                  <Route
+                    path="/oauth-callback"
+                    element={
+                      <ProtectedRoute>
+                        <OAuthCallback />
+                      </ProtectedRoute>
+                    }
+                  />
+                
+                <Route path="/login" element={<Login />} />
+                <Route path="/signup" element={<Signup />} />
+              </Routes>
+            </Suspense>
+          </main>
+          <Footer />
+        </div>
+      </Router>
+    </AuthProvider>
   );
 }
 
