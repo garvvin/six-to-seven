@@ -4,6 +4,7 @@ import os
 import logging
 # from ..services.ocr_service import OCRService  # Comment out complex OCR
 from ..services.simple_ocr import SimpleOCRService  # Use simple OCR for testing
+from ..services.supabase_service import SupabaseService
 
 upload_bp = Blueprint('upload', __name__)
 
@@ -72,11 +73,25 @@ def upload_pdf():
         result = ocr_service.process_pdf_to_json(file_bytes)
         print("Simple OCR processing completed successfully")
         
+        # Store result in Supabase
+        print("Storing OCR result in Supabase...")
+        supabase_service = SupabaseService()
+        supabase_result = supabase_service.store_ocr_result(result)
+        
+        if supabase_result['success']:
+            print("OCR result stored in Supabase successfully")
+            print(f"Stored with ID: {supabase_result['data'].get('id')}")
+        else:
+            print(f"Warning: Failed to store in Supabase: {supabase_result['error']}")
+        
         # Return the JSON result
         response_data = {
             'success': True,
             'message': 'PDF processed successfully',
-            'data': result
+            'data': result,
+            'supabase_stored': supabase_result['success'],
+            'supabase_id': supabase_result['data'].get('id') if supabase_result['success'] else None,
+            'supabase_error': supabase_result.get('error') if not supabase_result['success'] else None
         }
         print("Returning success response")
         return jsonify(response_data), 200
@@ -93,3 +108,70 @@ def health_check():
     Health check endpoint
     """
     return jsonify({'status': 'healthy', 'service': 'PDF Upload & OCR'}), 200
+
+@upload_bp.route('/ocr-results', methods=['GET'])
+def get_ocr_results():
+    """
+    Retrieve stored OCR results from Supabase
+    """
+    try:
+        # Get query parameters
+        email = request.args.get('email')
+        limit = request.args.get('limit', 100, type=int)
+        
+        print(f"Fetching OCR results - Email: {email}, Limit: {limit}")
+        
+        # Initialize Supabase service
+        supabase_service = SupabaseService()
+        result = supabase_service.get_ocr_results(email=email, limit=limit)
+        
+        if result['success']:
+            print(f"Successfully retrieved {result['count']} OCR results")
+            return jsonify({
+                'success': True,
+                'data': result['data'],
+                'count': result['count']
+            }), 200
+        else:
+            print(f"Failed to retrieve OCR results: {result['error']}")
+            return jsonify({
+                'success': False,
+                'error': result['error']
+            }), 500
+            
+    except Exception as e:
+        print(f"EXCEPTION in get_ocr_results: {e}")
+        import traceback
+        traceback.print_exc()
+        return jsonify({'error': f'Failed to retrieve OCR results: {str(e)}'}), 500
+
+@upload_bp.route('/ocr-results/<int:result_id>', methods=['DELETE'])
+def delete_ocr_result(result_id):
+    """
+    Delete a specific OCR result by ID
+    """
+    try:
+        print(f"Deleting OCR result with ID: {result_id}")
+        
+        # Initialize Supabase service
+        supabase_service = SupabaseService()
+        result = supabase_service.delete_ocr_result(result_id)
+        
+        if result['success']:
+            print(f"Successfully deleted OCR result {result_id}")
+            return jsonify({
+                'success': True,
+                'message': result['message']
+            }), 200
+        else:
+            print(f"Failed to delete OCR result {result_id}: {result['error']}")
+            return jsonify({
+                'success': False,
+                'error': result['error']
+            }), 400
+            
+    except Exception as e:
+        print(f"EXCEPTION in delete_ocr_result: {e}")
+        import traceback
+        traceback.print_exc()
+        return jsonify({'error': f'Failed to delete OCR result: {str(e)}'}), 500

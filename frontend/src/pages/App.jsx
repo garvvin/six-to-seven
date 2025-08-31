@@ -26,6 +26,7 @@ import {
   Send,
 } from 'lucide-react';
 import UploadMedicalFile from '../components/UploadMedicalFile';
+import MedicationsToCalendar from '../components/MedicationsToCalendar';
 
 const Dashboard = () => {
   const [isChatOpen, setIsChatOpen] = React.useState(false);
@@ -34,7 +35,41 @@ const Dashboard = () => {
   const [isAnalyzing, setIsAnalyzing] = React.useState(false);
   const [analysisResults, setAnalysisResults] = React.useState([]);
   const [analysisError, setAnalysisError] = React.useState(null);
+  const [storedResults, setStoredResults] = React.useState([]);
+  const [isLoadingStored, setIsLoadingStored] = React.useState(false);
   const fileInputRef = React.useRef(null);
+
+  // Fetch stored results when component mounts
+  React.useEffect(() => {
+    const fetchStoredResultsOnMount = async () => {
+      setIsLoadingStored(true);
+      try {
+        // Get the API base URL from environment or use fallback
+        const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:5005';
+        
+        const response = await fetch(`${API_BASE_URL}/api/upload/ocr-results`);
+        
+        if (!response.ok) {
+          throw new Error(`HTTP error! status: ${response.status}`);
+        }
+        
+        const result = await response.json();
+        
+        if (result.success) {
+          setStoredResults(result.data);
+          console.log('Fetched stored results on mount from backend:', result.data);
+        } else {
+          console.error('Failed to fetch stored results on mount:', result.error);
+        }
+      } catch (error) {
+        console.error('Error fetching stored results on mount:', error);
+      } finally {
+        setIsLoadingStored(false);
+      }
+    };
+    
+    fetchStoredResultsOnMount();
+  }, []);
 
   const toggleChat = () => {
     setIsChatOpen(!isChatOpen);
@@ -53,6 +88,33 @@ const Dashboard = () => {
     // setChatHistory([...chatHistory, { sender: 'user', message: message }]);
     console.log('Sending message:', message);
     setMessage('');
+  };
+
+  const fetchStoredResults = async () => {
+    setIsLoadingStored(true);
+    try {
+      // Get the API base URL from environment or use fallback
+      const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:5005';
+      
+      const response = await fetch(`${API_BASE_URL}/api/upload/ocr-results`);
+      
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+      
+      const result = await response.json();
+      
+      if (result.success) {
+        setStoredResults(result.data);
+        console.log('Fetched stored results from backend:', result.data);
+      } else {
+        console.error('Failed to fetch stored results:', result.error);
+      }
+    } catch (error) {
+      console.error('Error fetching stored results:', error);
+    } finally {
+      setIsLoadingStored(false);
+    }
   };
 
   const handleAnalyzeWithAI = async () => {
@@ -103,6 +165,7 @@ const Dashboard = () => {
           // For example, display them in the UI or store them in state
           if (result.success) {
             console.log('PDF processed successfully:', result.data);
+            
             // Store the OCR results in state
             setAnalysisResults(prev => [
               ...prev,
@@ -112,6 +175,19 @@ const Dashboard = () => {
                 timestamp: new Date().toISOString(),
               },
             ]);
+
+            // OCR result is automatically stored in Supabase by the backend
+            if (result.supabase_stored) {
+              console.log('OCR result stored in Supabase successfully by backend');
+              console.log('Supabase ID:', result.supabase_id);
+            } else {
+              console.log('OCR result processed but not stored in Supabase');
+              if (result.supabase_error) {
+                console.error('Supabase storage error:', result.supabase_error);
+                // Show user-friendly error message
+                setAnalysisError(`OCR completed but storage failed: ${result.supabase_error}`);
+              }
+            }
           } else {
             console.error('PDF processing failed:', result.error);
             setAnalysisError(
@@ -430,6 +506,65 @@ const Dashboard = () => {
                 </CardContent>
               </Card>
             )}
+
+            {/* Stored Results from Backend Section */}
+            <Card className="bg-white/80 backdrop-blur-md border-gray-200 shadow-lg">
+              <CardHeader>
+                <div className="flex items-center justify-between">
+                  <CardTitle className="flex items-center gap-2">
+                    <Sparkles className="h-5 w-5 text-gray-800" />
+                    Stored OCR Results (Backend)
+                  </CardTitle>
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={fetchStoredResults}
+                    disabled={isLoadingStored}
+                    className="border-gray-200 text-gray-800 hover:bg-gray-100"
+                  >
+                    {isLoadingStored ? (
+                      <RefreshCw className="h-4 w-4 mr-2 animate-spin" />
+                    ) : (
+                      <RefreshCw className="h-4 w-4 mr-2" />
+                    )}
+                    Refresh
+                  </Button>
+                </div>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                {storedResults.length === 0 ? (
+                  <div className="text-center py-8 text-gray-500">
+                    <p>No stored results yet. Upload a PDF to see results here.</p>
+                  </div>
+                ) : (
+                  storedResults.map((result, index) => (
+                    <div
+                      key={result.id || index}
+                      className="p-4 bg-gray-100 rounded-lg border border-gray-200 shadow-md"
+                    >
+                      <div className="flex items-center justify-between mb-3">
+                        <h4 className="font-medium text-gray-900">
+                          OCR Result #{result.id}
+                        </h4>
+                        {result.email && (
+                          <span className="text-xs bg-blue-100 text-blue-800 px-2 py-1 rounded-full">
+                            {result.email}
+                          </span>
+                        )}
+                      </div>
+                      <div className="bg-white p-3 rounded border border-gray-200">
+                        <pre className="text-sm text-gray-700 whitespace-pre-wrap overflow-x-auto">
+                          {JSON.stringify(result.info, null, 2)}
+                        </pre>
+                      </div>
+                    </div>
+                  ))
+                )}
+              </CardContent>
+            </Card>
+
+            {/* Medications to Calendar Section */}
+            <MedicationsToCalendar />
 
             {/* Analysis Error Display */}
             {analysisError && (

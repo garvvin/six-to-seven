@@ -65,10 +65,10 @@ class GoogleCalendarOAuthService {
         console.log('Received message from OAuth callback:', event.data);
         
         // Check if the message is from the OAuth callback page
-        if (event.origin !== 'http://localhost:5173' && event.origin !== 'http://localhost:5175') {
-          console.log('Message origin mismatch:', event.origin, 'expected localhost');
-          return;
-        }
+            if (event.origin !== 'http://localhost:5175') {
+      console.log('Message origin mismatch:', event.origin, 'expected localhost:5175');
+      return;
+    }
         
         if (event.data.type === 'GOOGLE_OAUTH_SUCCESS') {
           console.log('OAuth success message received');
@@ -252,6 +252,93 @@ class GoogleCalendarOAuthService {
   isAuthenticated() {
     const token = this.getStoredToken();
     return token && !this.isTokenExpired(token);
+  }
+
+  // Create a new event
+  async createEvent(eventData) {
+    try {
+      const token = this.getStoredToken();
+      if (!token) {
+        throw new Error('No valid token available. Please authenticate first.');
+      }
+
+      const response = await fetch(
+        `https://www.googleapis.com/calendar/v3/calendars/primary/events`,
+        {
+          method: 'POST',
+          headers: {
+            'Authorization': `Bearer ${token.access_token}`,
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify(eventData)
+        }
+      );
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(`HTTP error! status: ${response.status}, message: ${errorData.error?.message || 'Unknown error'}`);
+      }
+
+      return await response.json();
+    } catch (error) {
+      console.error('Error creating calendar event:', error);
+      throw error;
+    }
+  }
+
+  // Create multiple events (for medications)
+  async createMultipleEvents(eventsData) {
+    try {
+      const token = this.getStoredToken();
+      if (!token) {
+        throw new Error('No valid token available. Please authenticate first.');
+      }
+
+      const results = [];
+      const errors = [];
+
+      // Create events one by one to handle any individual failures
+      for (let i = 0; i < eventsData.length; i++) {
+        try {
+          const eventData = eventsData[i];
+          console.log(`Creating event ${i + 1}/${eventsData.length}: ${eventData.summary}`);
+          
+          const result = await this.createEvent(eventData);
+          results.push({
+            index: i,
+            event: result,
+            success: true
+          });
+          
+          // Add a small delay to avoid rate limiting
+          if (i < eventsData.length - 1) {
+            await new Promise(resolve => setTimeout(resolve, 100));
+          }
+          
+        } catch (error) {
+          console.error(`Failed to create event ${i + 1}:`, error);
+          errors.push({
+            index: i,
+            event: eventsData[i],
+            error: error.message,
+            success: false
+          });
+        }
+      }
+
+      return {
+        success: true,
+        totalEvents: eventsData.length,
+        successfulEvents: results.length,
+        failedEvents: errors.length,
+        results,
+        errors
+      };
+
+    } catch (error) {
+      console.error('Error creating multiple calendar events:', error);
+      throw error;
+    }
   }
 }
 

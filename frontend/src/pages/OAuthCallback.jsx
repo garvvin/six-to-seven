@@ -38,10 +38,10 @@ const OAuthCallback = () => {
           
           // Notify parent window of error
           if (window.opener) {
-            window.opener.postMessage(
-              { type: 'GOOGLE_OAUTH_ERROR', error: 'No authorization code received' },
-              'http://localhost:5175'
-            );
+                    window.opener.postMessage(
+          { type: 'GOOGLE_OAUTH_ERROR', error: 'No authorization code received' },
+          'http://localhost:5175'
+        );
           }
           return;
         }
@@ -56,10 +56,10 @@ const OAuthCallback = () => {
         // Notify parent window
         if (window.opener) {
           console.log('Notifying parent window of success');
-          window.opener.postMessage(
-            { type: 'GOOGLE_OAUTH_SUCCESS' },
-            'http://localhost:5175'
-          );
+                    window.opener.postMessage(
+      { type: 'GOOGLE_OAUTH_SUCCESS' },
+      'http://localhost:5175'
+    );
         }
 
         // Close window after a short delay
@@ -74,10 +74,10 @@ const OAuthCallback = () => {
 
         // Notify parent window of error
         if (window.opener) {
-          window.opener.postMessage(
-            { type: 'GOOGLE_OAUTH_ERROR', error: error.message },
-            'http://localhost:5175'
-          );
+                      window.opener.postMessage(
+      { type: 'GOOGLE_OAUTH_ERROR', error: error.message },
+      'http://localhost:5175'
+    );
         }
       }
     };

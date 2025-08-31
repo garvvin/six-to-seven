@@ -47,7 +47,7 @@ A comprehensive health tracking application built with modern web technologies. 
    npm run dev
    ```
 
-5. Open your browser and navigate to `http://localhost:5173`
+5. Open your browser and navigate to `http://localhost:5175`
 
 ### Available Scripts
 

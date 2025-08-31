@@ -30,7 +30,7 @@ This guide will help you set up OAuth2 authentication for Google Calendar to acc
    - Application type: "Web application"
    - Name: "HealthSync Calendar"
    - Authorized JavaScript origins: `http://localhost:5175`
-   - Authorized redirect URIs: `http://localhost:5175/oauth-callback`
+- Authorized redirect URIs: `http://localhost:5175/oauth-callback`
    - Click "Create"
 
 5. Copy the Client ID and Client Secret

@@ -34,7 +34,7 @@ VITE_GOOGLE_CALENDAR_API_KEY=your_actual_api_key_here
 1. In the Google Cloud Console, go to "APIs & Services" > "Credentials"
 2. Click on your API key
 3. Under "Application restrictions", select "HTTP referrers"
-4. Add your domain (e.g., `localhost:5173` for development)
+4. Add your domain (e.g., `localhost:5175` for development)
 5. Under "API restrictions", select "Restrict key"
 6. Select "Google Calendar API" from the dropdown
 

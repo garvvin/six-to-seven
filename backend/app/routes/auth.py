@@ -1,7 +1,12 @@
 from flask import Blueprint, request, jsonify
 from flask_jwt_extended import create_access_token, jwt_required, get_jwt_identity, unset_jwt_cookies
-from app.services.supabase_service import SupabaseService
 from werkzeug.security import generate_password_hash, check_password_hash
+from app.services.supabase_service import SupabaseService
+import os
+from dotenv import load_dotenv
+
+# Load environment variables
+load_dotenv()
 
 auth_bp = Blueprint('auth', __name__)
 supabase_service = SupabaseService()
@@ -26,23 +31,16 @@ def register():
         if len(data['password']) < 6:
             return jsonify({'error': 'Password must be at least 6 characters long'}), 400
         
-        # Create user
-        user, status_code = supabase_service.create_user(
-            email=data['email'],
-            password=data['password'],
-            username=data['username']
-        )
+        # Check if user already exists in Supabase
+        existing_user = supabase_service.client.table('users').select('*').eq('email', data['email']).execute()
+        if existing_user.data:
+            return jsonify({'error': 'User with this email already exists'}), 400
         
-        if status_code == 201:
-            # Create JWT token
-            access_token = create_access_token(identity=user['id'])
-            return jsonify({
-                'message': 'User registered successfully',
-                'user': user,
-                'access_token': access_token
-            }), 201
-        else:
-            return jsonify(user), status_code
+        # For now, registration is disabled since users exist in Supabase
+        return jsonify({'error': 'User registration is disabled. Users are managed in Supabase.'}), 501
+        
+        # Registration disabled
+        pass
             
     except Exception as e:
         return jsonify({'error': str(e)}), 500
@@ -57,22 +55,21 @@ def login():
         if not data.get('email') or not data.get('password'):
             return jsonify({'error': 'Email and password are required'}), 400
         
-        # Authenticate user
-        user, status_code = supabase_service.authenticate_user(
-            email=data['email'],
-            password=data['password']
-        )
+        # Authenticate user using Supabase
+        auth_result = supabase_service.authenticate_user(data['email'], data['password'])
         
-        if status_code == 200:
-            # Create JWT token
-            access_token = create_access_token(identity=user['id'])
-            return jsonify({
-                'message': 'Login successful',
-                'user': user,
-                'access_token': access_token
-            }), 200
-        else:
-            return jsonify(user), status_code
+        if not auth_result['success']:
+            return jsonify({'error': auth_result['error']}), 401
+        
+        user = auth_result['data']
+        
+        # Create JWT token
+        access_token = create_access_token(identity=user['id'])
+        return jsonify({
+            'message': 'Login successful',
+            'user': user,
+            'access_token': access_token
+        }), 200
             
     except Exception as e:
         return jsonify({'error': str(e)}), 500
@@ -95,15 +92,17 @@ def get_session():
     """Get current user session information"""
     try:
         current_user_id = get_jwt_identity()
-        user, status_code = supabase_service.get_user_by_id(current_user_id)
         
-        if status_code == 200:
+        # Get user from Supabase
+        user_result = supabase_service.get_user_by_id(current_user_id)
+        
+        if user_result['success']:
             return jsonify({
                 'message': 'Session valid',
-                'user': user
+                'user': user_result['data']
             }), 200
         else:
-            return jsonify(user), status_code
+            return jsonify({'error': user_result['error']}), 404
             
     except Exception as e:
         return jsonify({'error': str(e)}), 500
@@ -114,12 +113,14 @@ def get_profile():
     """Get current user profile"""
     try:
         current_user_id = get_jwt_identity()
-        user, status_code = supabase_service.get_user_by_id(current_user_id)
         
-        if status_code == 200:
-            return jsonify(user), 200
+        # Get user from Supabase
+        user_result = supabase_service.get_user_by_id(current_user_id)
+        
+        if user_result['success']:
+            return jsonify(user_result['data']), 200
         else:
-            return jsonify(user), status_code
+            return jsonify({'error': user_result['error']}), 404
             
     except Exception as e:
         return jsonify({'error': str(e)}), 500
@@ -139,15 +140,37 @@ def update_profile():
         if not update_data:
             return jsonify({'error': 'No valid fields to update'}), 400
         
-        user, status_code = supabase_service.update_user(current_user_id, update_data)
+        # For now, profile updates are not implemented in Supabase
+        # You would need to add an update_user method to the Supabase service
+        return jsonify({
+            'error': 'Profile updates not yet implemented'
+        }), 501
+            
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+
+@auth_bp.route('/test-user/<email>', methods=['GET'])
+def test_user(email):
+    """Test endpoint to check user data (for debugging)"""
+    try:
+        # Get user by email from Supabase
+        result = supabase_service.client.table('users').select('*').eq('email', email).execute()
         
-        if status_code == 200:
+        if result.data:
+            user = result.data[0]
+            # Don't return the password hash in production
             return jsonify({
-                'message': 'Profile updated successfully',
-                'user': user
+                'success': True,
+                'user': {
+                    'id': user['id'],
+                    'email': user['email'],
+                    'username': user['username'],
+                    'created_at': user.get('created_at'),
+                    'password_hash_length': len(user['password_hash']) if user['password_hash'] else 0
+                }
             }), 200
         else:
-            return jsonify(user), status_code
+            return jsonify({'error': 'User not found'}), 404
             
     except Exception as e:
         return jsonify({'error': str(e)}), 500
