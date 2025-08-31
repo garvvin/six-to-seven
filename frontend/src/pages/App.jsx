@@ -29,6 +29,12 @@ import {
 import UploadMedicalFile from '../components/UploadMedicalFile';
 import AIHealthInsights from '../components/AIHealthInsights';
 import MedicationsToCalendar from '../components/MedicationsToCalendar';
+import {
+  Accordion,
+  AccordionContent,
+  AccordionItem,
+  AccordionTrigger,
+} from '../components/ui/accordion';
 
 const Dashboard = () => {
   const navigate = useNavigate();
@@ -486,34 +492,154 @@ const Dashboard = () => {
                   </Button>
                 </div>
               </CardHeader>
-              <CardContent className="space-y-4">
+              <CardContent>
                 {storedResults.length === 0 ? (
                   <div className="text-center py-8 text-gray-500">
                     <p>No stored results yet. Upload a PDF to see results here.</p>
                   </div>
                 ) : (
-                  storedResults.map((result, index) => (
-                    <div
-                      key={result.id || index}
-                      className="p-4 bg-gray-100 rounded-lg border border-gray-200 shadow-md"
-                    >
-                      <div className="flex items-center justify-between mb-3">
-                        <h4 className="font-medium text-gray-900">
-                          OCR Result #{result.id}
-                        </h4>
-                        {result.email && (
-                          <span className="text-xs bg-blue-100 text-blue-800 px-2 py-1 rounded-full">
-                            {result.email}
-                          </span>
-                        )}
-                      </div>
-                      <div className="bg-white p-3 rounded border border-gray-200">
-                        <pre className="text-sm text-gray-700 whitespace-pre-wrap overflow-x-auto">
-                          {JSON.stringify(result.info, null, 2)}
-                        </pre>
-                      </div>
-                    </div>
-                  ))
+                  <Accordion type="single" collapsible className="w-full">
+                    {storedResults.map((result, index) => (
+                      <AccordionItem key={result.id || index} value={`item-${result.id || index}`}>
+                        <AccordionTrigger className="hover:no-underline">
+                          <div className="flex items-center justify-between w-full pr-4">
+                            <span className="font-medium text-gray-900">
+                              OCR Result #{result.id}
+                            </span>
+                            {result.email && (
+                              <span className="text-xs bg-blue-100 text-blue-800 px-2 py-1 rounded-full">
+                                {result.email}
+                              </span>
+                            )}
+                          </div>
+                        </AccordionTrigger>
+                        <AccordionContent>
+                          <div className="bg-gray-50 p-4 rounded-lg border border-gray-200">
+                            <div className="space-y-3">
+                              {/* Document Type */}
+                              {result.info?.doc_type && (
+                                <div className="flex items-center gap-2">
+                                  <span className="text-sm font-medium text-gray-700">Document Type:</span>
+                                  <span className="text-sm text-gray-600 bg-blue-50 px-2 py-1 rounded">
+                                    {result.info.doc_type}
+                                  </span>
+                                </div>
+                              )}
+                              
+                              {/* Chief Complaint */}
+                              {result.info?.chief_complaint && (
+                                <div className="flex items-center gap-2">
+                                  <span className="text-sm font-medium text-gray-700">Chief Complaint:</span>
+                                  <span className="text-sm text-gray-600 bg-red-50 px-2 py-1 rounded">
+                                    {result.info.chief_complaint}
+                                  </span>
+                                </div>
+                              )}
+                              
+                              {/* Diagnosis */}
+                              {result.info?.impression_or_diagnosis && (
+                                <div className="flex items-center gap-2">
+                                  <span className="text-sm font-medium text-gray-700">Diagnosis:</span>
+                                  <span className="text-sm text-gray-600 bg-green-50 px-2 py-1 rounded">
+                                    {result.info.impression_or_diagnosis}
+                                  </span>
+                                </div>
+                              )}
+                              
+                              {/* Symptoms */}
+                              {result.info?.hpi?.symptoms_checked && result.info.hpi.symptoms_checked.length > 0 && (
+                                <div className="flex items-start gap-2">
+                                  <span className="text-sm font-medium text-gray-700">Symptoms:</span>
+                                  <div className="flex flex-wrap gap-1">
+                                    {result.info.hpi.symptoms_checked.map((symptom, idx) => (
+                                      <span key={idx} className="text-xs bg-yellow-50 text-yellow-800 px-2 py-1 rounded">
+                                        {symptom}
+                                      </span>
+                                    ))}
+                                  </div>
+                                </div>
+                              )}
+                              
+                              {/* Vitals */}
+                              {result.info?.vitals && (
+                                <div className="grid grid-cols-2 gap-4">
+                                  <div className="flex items-center gap-2">
+                                    <span className="text-sm font-medium text-gray-700">Blood Pressure:</span>
+                                    <span className="text-sm text-gray-600 bg-purple-50 px-2 py-1 rounded">
+                                      {result.info.vitals.blood_pressure || 'N/A'}
+                                    </span>
+                                  </div>
+                                  <div className="flex items-center gap-2">
+                                    <span className="text-sm font-medium text-gray-700">Pulse Rate:</span>
+                                    <span className="text-sm text-gray-600 bg-purple-50 px-2 py-1 rounded">
+                                      {result.info.vitals.pulse_rate || 'N/A'} bpm
+                                    </span>
+                                  </div>
+                                  <div className="flex items-center gap-2">
+                                    <span className="text-sm font-medium text-gray-700">Temperature:</span>
+                                    <span className="text-sm text-gray-600 bg-purple-50 px-2 py-1 rounded">
+                                      {result.info.vitals.temperature?.value || 'N/A'}°F
+                                    </span>
+                                  </div>
+                                  <div className="flex items-center gap-2">
+                                    <span className="text-sm font-medium text-gray-700">Respiratory Rate:</span>
+                                    <span className="text-sm text-gray-600 bg-purple-50 px-2 py-1 rounded">
+                                      {result.info.vitals.resp_rate || 'N/A'} /min
+                                    </span>
+                                  </div>
+                                </div>
+                              )}
+                              
+                              {/* Medications */}
+                              {result.info?.medications && (
+                                <div className="space-y-2">
+                                  <span className="text-sm font-medium text-gray-700">Medications:</span>
+                                  <div className="space-y-2">
+                                    {result.info.medications.added_or_changed && result.info.medications.added_or_changed.length > 0 && (
+                                      <div className="flex items-center gap-2">
+                                        <span className="text-xs text-green-600">Added/Changed:</span>
+                                        <div className="flex flex-wrap gap-1">
+                                          {result.info.medications.added_or_changed.map((med, idx) => (
+                                            <span key={idx} className="text-xs bg-green-50 text-green-800 px-2 py-1 rounded">
+                                              {med}
+                                            </span>
+                                          ))}
+                                        </div>
+                                      </div>
+                                    )}
+                                    {result.info.medications.deleted && result.info.medications.deleted.length > 0 && (
+                                      <div className="flex items-center gap-2">
+                                        <span className="text-xs text-red-600">Discontinued:</span>
+                                        <div className="flex flex-wrap gap-1">
+                                          {result.info.medications.deleted.map((med, idx) => (
+                                            <span key={idx} className="text-xs bg-red-50 text-red-800 px-2 py-1 rounded">
+                                              {med}
+                                            </span>
+                                          ))}
+                                        </div>
+                                      </div>
+                                    )}
+                                  </div>
+                                </div>
+                              )}
+                              
+                              {/* Raw Data Toggle */}
+                              <details className="mt-4">
+                                <summary className="cursor-pointer text-sm font-medium text-gray-600 hover:text-gray-800">
+                                  View Raw Data
+                                </summary>
+                                <div className="mt-2 bg-white p-3 rounded border border-gray-200">
+                                  <pre className="text-xs text-gray-700 whitespace-pre-wrap overflow-x-auto">
+                                    {JSON.stringify(result.info, null, 2)}
+                                  </pre>
+                                </div>
+                              </details>
+                            </div>
+                          </div>
+                        </AccordionContent>
+                      </AccordionItem>
+                    ))}
+                  </Accordion>
                 )}
               </CardContent>
             </Card>
