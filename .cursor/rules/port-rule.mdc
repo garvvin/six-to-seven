@@ -1,0 +1,7 @@
+---
+description: the server port is 5005
+globs:
+alwaysApply: true
+---
+
+The backend server must listen on port 5005.
