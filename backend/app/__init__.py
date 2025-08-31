@@ -21,8 +21,8 @@ def create_app():
          supports_credentials=True, 
          methods=["GET", "POST", "PUT", "DELETE", "OPTIONS"],
          allow_headers=["Content-Type", "Authorization"])
-         
-        JWTManager(app)
+
+    JWTManager(app)
     
     # Register blueprints
     from app.routes.auth import auth_bp
