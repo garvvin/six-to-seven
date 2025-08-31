@@ -25,10 +25,9 @@ import {
   RefreshCw,
   X,
   Send,
-  Brain,
-  Loader2,
 } from 'lucide-react';
 import UploadMedicalFile from '../components/UploadMedicalFile';
+import AIHealthInsights from '../components/AIHealthInsights';
 
 const Dashboard = () => {
   const navigate = useNavigate();
@@ -38,9 +37,7 @@ const Dashboard = () => {
   const [isAnalyzing, setIsAnalyzing] = React.useState(false);
   const [analysisResults, setAnalysisResults] = React.useState([]);
   const [analysisError, setAnalysisError] = React.useState(null);
-  const [generatingInsights, setGeneratingInsights] = React.useState(false);
-  const [healthInsights, setHealthInsights] = React.useState(null);
-  const [insightsError, setInsightsError] = React.useState(null);
+
   const fileInputRef = React.useRef(null);
 
   const toggleChat = () => {
@@ -156,79 +153,17 @@ const Dashboard = () => {
     if (files.length > 0) {
       setAnalysisResults([]);
       setAnalysisError(null);
-      setHealthInsights(null);
-      setInsightsError(null);
     }
   };
 
   const removeFile = fileId => {
     setSelectedFiles(prev => prev.filter(f => f.id !== fileId));
-    // Clear insights if no files remain
-    if (selectedFiles.length <= 1) {
-      setHealthInsights(null);
-      setInsightsError(null);
-    }
   };
 
   const clearAllFiles = () => {
     setSelectedFiles([]);
     setAnalysisResults([]);
     setAnalysisError(null);
-    setHealthInsights(null);
-    setInsightsError(null);
-  };
-
-  const generateHealthInsights = async () => {
-    if (analysisResults.length === 0) {
-      setInsightsError(
-        'No analysis results available to generate insights from'
-      );
-      return;
-    }
-
-    setGeneratingInsights(true);
-    setInsightsError(null);
-    setHealthInsights(null);
-
-    try {
-      // Use the first analysis result's data for insights
-      const documentData = analysisResults[0].data;
-
-      const response = await fetch(
-        'http://localhost:5005/api/health-insights/get-health-insights',
-        {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify(documentData),
-        }
-      );
-
-      if (!response.ok) {
-        let errorMessage = 'Failed to generate health insights';
-        try {
-          const errorData = await response.json();
-          errorMessage = errorData.error || errorMessage;
-        } catch (parseError) {
-          console.error('Could not parse error response:', parseError);
-        }
-        throw new Error(errorMessage);
-      }
-
-      const result = await response.json();
-      setHealthInsights(result.data);
-    } catch (err) {
-      console.error('Health insights generation error:', err);
-      setInsightsError(err.message);
-    } finally {
-      setGeneratingInsights(false);
-    }
-  };
-
-  const clearInsights = () => {
-    setHealthInsights(null);
-    setInsightsError(null);
   };
 
   const formatFileSize = bytes => {
@@ -418,53 +353,6 @@ const Dashboard = () => {
               </CardContent>
             </Card>
 
-            {/* AI Health Recommendations Section */}
-            {analysisResults.length > 0 && (
-              <Card className="bg-white/80 backdrop-blur-md border-gray-200 shadow-lg">
-                <CardHeader>
-                  <CardTitle className="flex items-center gap-2">
-                    <Sparkles className="h-5 w-5 text-gray-800" />
-                    AI Health Recommendations
-                  </CardTitle>
-                </CardHeader>
-                <CardContent className="space-y-4">
-                  {/* Blood Test Results */}
-                  <div className="flex items-center justify-between p-4 bg-gray-100 rounded-lg border border-gray-200 shadow-md">
-                    <div className="flex-1">
-                      <h4 className="font-medium text-gray-900">
-                        Blood Test Results - March 2024
-                      </h4>
-                      <span className="inline-block px-2 py-1 text-xs bg-gray-200 text-gray-800 rounded-full mt-1">
-                        Lab Results
-                      </span>
-                      <ul className="mt-2 space-y-1">
-                        <li className="flex items-center gap-2 text-sm text-gray-600">
-                          <CheckCircle className="h-4 w-4 text-gray-800" />
-                          Cholesterol levels improved by 15mg/dL
-                        </li>
-                        <li className="flex items-center gap-2 text-sm text-gray-600">
-                          <CheckCircle className="h-4 w-4 text-gray-800" />
-                          Vitamin D levels within normal range
-                          <TrendingUp className="h-3 w-3 text-gray-600" />
-                        </li>
-                      </ul>
-                    </div>
-                    <CheckCircle className="h-6 w-6 text-gray-800" />
-                  </div>
-
-                  {/* Prescription */}
-                  <div className="flex items-center justify-between p-4 bg-gray-100 rounded-lg border border-gray-200 shadow-md">
-                    <div className="flex-1">
-                      <h4 className="font-medium text-gray-900">
-                        Prescription - Dr. Smith
-                      </h4>
-                    </div>
-                    <CheckCircle className="h-6 w-6 text-gray-800" />
-                  </div>
-                </CardContent>
-              </Card>
-            )}
-
             {/* PDF Analysis Results Section */}
             {analysisResults.length > 0 && (
               <Card className="bg-white/80 backdrop-blur-md border-gray-200 shadow-lg">
@@ -520,78 +408,9 @@ const Dashboard = () => {
               </Card>
             )}
 
-            {/* Health Insights Section */}
+            {/* AI Health Insights Section */}
             {analysisResults.length > 0 && (
-              <Card className="bg-white/80 backdrop-blur-md border-gray-200 shadow-lg">
-                <CardHeader>
-                  <div className="text-center">
-                    <CardTitle className="flex items-center gap-2">
-                      <TrendingUp className="h-5 w-5 text-gray-800" />
-                      Health Insights
-                    </CardTitle>
-                  </div>
-                </CardHeader>
-                <CardContent className="space-y-4">
-                  {/* Insights Error Display */}
-                  {insightsError && (
-                    <div className="bg-red-50 border border-red-200 rounded-lg p-4">
-                      <p className="text-red-800 text-sm">{insightsError}</p>
-                    </div>
-                  )}
-
-                  {/* Dynamic Health Insights */}
-                  {healthInsights &&
-                  healthInsights.insights &&
-                  healthInsights.insights.length > 0 ? (
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                      {healthInsights.insights.map((insight, index) => (
-                        <div
-                          key={index}
-                          className="p-4 bg-gray-50 rounded-lg border border-gray-200 shadow-md"
-                        >
-                          <div className="flex items-center gap-3 mb-2">
-                            <div className="w-8 h-8 bg-gray-200 rounded-full flex items-center justify-center shadow-sm">
-                              <Brain className="h-4 w-4 text-gray-800" />
-                            </div>
-                            <span className="text-sm font-medium text-gray-900">
-                              {insight.title}
-                            </span>
-                          </div>
-                          <p className="text-sm text-gray-700">
-                            {insight.description}
-                          </p>
-                        </div>
-                      ))}
-                    </div>
-                  ) : (
-                    /* Default placeholder when no insights generated yet */
-                    <div className="text-center py-8">
-                      <Brain className="h-12 w-12 text-gray-400 mx-auto mb-4" />
-                      <p className="text-gray-600 mb-4">
-                        Click "Get Health Insights" to get AI-powered health
-                        insights from your document analysis
-                      </p>
-                      <Button
-                        onClick={generateHealthInsights}
-                        disabled={generatingInsights}
-                        className="bg-gray-800 hover:bg-gray-900 text-white"
-                      >
-                        {generatingInsights ? (
-                          <>
-                            <Loader2 className="h-4 w-4 mr-2 animate-spin" />
-                            Generating...
-                          </>
-                        ) : (
-                          <>
-                            <Brain className="h-4 w-4 mr-2" />
-                            Get Health Insights
-                          </>
-                        )}
-                      </Button>
-                    </div>
-                  )}
-                </CardContent>
-              </Card>
+              <AIHealthInsights analysisResults={analysisResults} />
             )}
           </div>
 
