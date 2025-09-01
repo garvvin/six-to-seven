@@ -13,22 +13,17 @@ import {
   Plus,
   Calendar,
   User,
-  MessageCircle,
-  MessageSquare,
   Heart,
   Sparkles,
   CheckCircle,
-  Stethoscope,
-  TrendingUp,
-  MapPin,
-  Clock,
   RefreshCw,
+  MessageCircle,
   X,
-  Send,
 } from 'lucide-react';
 import UploadMedicalFile from '../components/UploadMedicalFile';
 import AIHealthInsights from '../components/AIHealthInsights';
 import MedicationsToCalendar from '../components/MedicationsToCalendar';
+import UpcomingDates from '../components/UpcomingDates';
 import {
   Accordion,
   AccordionContent,
@@ -38,8 +33,6 @@ import {
 
 const Dashboard = () => {
   const navigate = useNavigate();
-  const [isChatOpen, setIsChatOpen] = React.useState(false);
-  const [message, setMessage] = React.useState('');
   const [selectedFiles, setSelectedFiles] = React.useState([]);
   const [isAnalyzing, setIsAnalyzing] = React.useState(false);
   const [analysisResults, setAnalysisResults] = React.useState([]);
@@ -54,21 +47,28 @@ const Dashboard = () => {
       setIsLoadingStored(true);
       try {
         // Get the API base URL from environment or use fallback
-        const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:5005';
-        
+        const API_BASE_URL =
+          import.meta.env.VITE_API_BASE_URL || 'http://localhost:5005';
+
         const response = await fetch(`${API_BASE_URL}/api/upload/ocr-results`);
-        
+
         if (!response.ok) {
           throw new Error(`HTTP error! status: ${response.status}`);
         }
-        
+
         const result = await response.json();
-        
+
         if (result.success) {
           setStoredResults(result.data);
-          console.log('Fetched stored results on mount from backend:', result.data);
+          console.log(
+            'Fetched stored results on mount from backend:',
+            result.data
+          );
         } else {
-          console.error('Failed to fetch stored results on mount:', result.error);
+          console.error(
+            'Failed to fetch stored results on mount:',
+            result.error
+          );
         }
       } catch (error) {
         console.error('Error fetching stored results on mount:', error);
@@ -76,43 +76,25 @@ const Dashboard = () => {
         setIsLoadingStored(false);
       }
     };
-    
+
     fetchStoredResultsOnMount();
   }, []);
-
-  const toggleChat = () => {
-    setIsChatOpen(!isChatOpen);
-    setMessage(''); // Clear message when closing chat
-  };
-
-  const handleKeyPress = event => {
-    if (event.key === 'Enter') {
-      handleSendMessage();
-    }
-  };
-
-  const handleSendMessage = () => {
-    // In a real application, you would send the message to an AI backend
-    // For now, we'll just add it to the chat history
-    // setChatHistory([...chatHistory, { sender: 'user', message: message }]);
-    console.log('Sending message:', message);
-    setMessage('');
-  };
 
   const fetchStoredResults = async () => {
     setIsLoadingStored(true);
     try {
       // Get the API base URL from environment or use fallback
-      const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:5005';
-      
+      const API_BASE_URL =
+        import.meta.env.VITE_API_BASE_URL || 'http://localhost:5005';
+
       const response = await fetch(`${API_BASE_URL}/api/upload/ocr-results`);
-      
+
       if (!response.ok) {
         throw new Error(`HTTP error! status: ${response.status}`);
       }
-      
+
       const result = await response.json();
-      
+
       if (result.success) {
         setStoredResults(result.data);
         console.log('Fetched stored results from backend:', result.data);
@@ -174,7 +156,7 @@ const Dashboard = () => {
           // For example, display them in the UI or store them in state
           if (result.success) {
             console.log('PDF processed successfully:', result.data);
-            
+
             // Store the OCR results in state
             setAnalysisResults(prev => [
               ...prev,
@@ -187,14 +169,18 @@ const Dashboard = () => {
 
             // OCR result is automatically stored in Supabase by the backend
             if (result.supabase_stored) {
-              console.log('OCR result stored in Supabase successfully by backend');
+              console.log(
+                'OCR result stored in Supabase successfully by backend'
+              );
               console.log('Supabase ID:', result.supabase_id);
             } else {
               console.log('OCR result processed but not stored in Supabase');
               if (result.supabase_error) {
                 console.error('Supabase storage error:', result.supabase_error);
                 // Show user-friendly error message
-                setAnalysisError(`OCR completed but storage failed: ${result.supabase_error}`);
+                setAnalysisError(
+                  `OCR completed but storage failed: ${result.supabase_error}`
+                );
               }
             }
           } else {
@@ -274,11 +260,8 @@ const Dashboard = () => {
               </div>
               <div>
                 <h1 className="text-2xl font-bold text-gray-900">
-                  HealthSync AI
+                  HealthSync Assistant
                 </h1>
-                <p className="text-sm text-gray-600">
-                  Your AI-powered health companion
-                </p>
               </div>
             </div>
 
@@ -495,12 +478,17 @@ const Dashboard = () => {
               <CardContent>
                 {storedResults.length === 0 ? (
                   <div className="text-center py-8 text-gray-500">
-                    <p>No stored results yet. Upload a PDF to see results here.</p>
+                    <p>
+                      No stored results yet. Upload a PDF to see results here.
+                    </p>
                   </div>
                 ) : (
                   <Accordion type="single" collapsible className="w-full">
                     {storedResults.map((result, index) => (
-                      <AccordionItem key={result.id || index} value={`item-${result.id || index}`}>
+                      <AccordionItem
+                        key={result.id || index}
+                        value={`item-${result.id || index}`}
+                      >
                         <AccordionTrigger className="hover:no-underline">
                           <div className="flex items-center justify-between w-full pr-4">
                             <span className="font-medium text-gray-900">
@@ -519,110 +507,157 @@ const Dashboard = () => {
                               {/* Document Type */}
                               {result.info?.doc_type && (
                                 <div className="flex items-center gap-2">
-                                  <span className="text-sm font-medium text-gray-700">Document Type:</span>
+                                  <span className="text-sm font-medium text-gray-700">
+                                    Document Type:
+                                  </span>
                                   <span className="text-sm text-gray-600 bg-blue-50 px-2 py-1 rounded">
                                     {result.info.doc_type}
                                   </span>
                                 </div>
                               )}
-                              
+
                               {/* Chief Complaint */}
                               {result.info?.chief_complaint && (
                                 <div className="flex items-center gap-2">
-                                  <span className="text-sm font-medium text-gray-700">Chief Complaint:</span>
+                                  <span className="text-sm font-medium text-gray-700">
+                                    Chief Complaint:
+                                  </span>
                                   <span className="text-sm text-gray-600 bg-red-50 px-2 py-1 rounded">
                                     {result.info.chief_complaint}
                                   </span>
                                 </div>
                               )}
-                              
+
                               {/* Diagnosis */}
                               {result.info?.impression_or_diagnosis && (
                                 <div className="flex items-center gap-2">
-                                  <span className="text-sm font-medium text-gray-700">Diagnosis:</span>
+                                  <span className="text-sm font-medium text-gray-700">
+                                    Diagnosis:
+                                  </span>
                                   <span className="text-sm text-gray-600 bg-green-50 px-2 py-1 rounded">
                                     {result.info.impression_or_diagnosis}
                                   </span>
                                 </div>
                               )}
-                              
+
                               {/* Symptoms */}
-                              {result.info?.hpi?.symptoms_checked && result.info.hpi.symptoms_checked.length > 0 && (
-                                <div className="flex items-start gap-2">
-                                  <span className="text-sm font-medium text-gray-700">Symptoms:</span>
-                                  <div className="flex flex-wrap gap-1">
-                                    {result.info.hpi.symptoms_checked.map((symptom, idx) => (
-                                      <span key={idx} className="text-xs bg-yellow-50 text-yellow-800 px-2 py-1 rounded">
-                                        {symptom}
-                                      </span>
-                                    ))}
+                              {result.info?.hpi?.symptoms_checked &&
+                                result.info.hpi.symptoms_checked.length > 0 && (
+                                  <div className="flex items-start gap-2">
+                                    <span className="text-sm font-medium text-gray-700">
+                                      Symptoms:
+                                    </span>
+                                    <div className="flex flex-wrap gap-1">
+                                      {result.info.hpi.symptoms_checked.map(
+                                        (symptom, idx) => (
+                                          <span
+                                            key={idx}
+                                            className="text-xs bg-yellow-50 text-yellow-800 px-2 py-1 rounded"
+                                          >
+                                            {symptom}
+                                          </span>
+                                        )
+                                      )}
+                                    </div>
                                   </div>
-                                </div>
-                              )}
-                              
+                                )}
+
                               {/* Vitals */}
                               {result.info?.vitals && (
                                 <div className="grid grid-cols-2 gap-4">
                                   <div className="flex items-center gap-2">
-                                    <span className="text-sm font-medium text-gray-700">Blood Pressure:</span>
+                                    <span className="text-sm font-medium text-gray-700">
+                                      Blood Pressure:
+                                    </span>
                                     <span className="text-sm text-gray-600 bg-purple-50 px-2 py-1 rounded">
-                                      {result.info.vitals.blood_pressure || 'N/A'}
+                                      {result.info.vitals.blood_pressure ||
+                                        'N/A'}
                                     </span>
                                   </div>
                                   <div className="flex items-center gap-2">
-                                    <span className="text-sm font-medium text-gray-700">Pulse Rate:</span>
+                                    <span className="text-sm font-medium text-gray-700">
+                                      Pulse Rate:
+                                    </span>
                                     <span className="text-sm text-gray-600 bg-purple-50 px-2 py-1 rounded">
-                                      {result.info.vitals.pulse_rate || 'N/A'} bpm
+                                      {result.info.vitals.pulse_rate || 'N/A'}{' '}
+                                      bpm
                                     </span>
                                   </div>
                                   <div className="flex items-center gap-2">
-                                    <span className="text-sm font-medium text-gray-700">Temperature:</span>
+                                    <span className="text-sm font-medium text-gray-700">
+                                      Temperature:
+                                    </span>
                                     <span className="text-sm text-gray-600 bg-purple-50 px-2 py-1 rounded">
-                                      {result.info.vitals.temperature?.value || 'N/A'}°F
+                                      {result.info.vitals.temperature?.value ||
+                                        'N/A'}
+                                      °F
                                     </span>
                                   </div>
                                   <div className="flex items-center gap-2">
-                                    <span className="text-sm font-medium text-gray-700">Respiratory Rate:</span>
+                                    <span className="text-sm font-medium text-gray-700">
+                                      Respiratory Rate:
+                                    </span>
                                     <span className="text-sm text-gray-600 bg-purple-50 px-2 py-1 rounded">
-                                      {result.info.vitals.resp_rate || 'N/A'} /min
+                                      {result.info.vitals.resp_rate || 'N/A'}{' '}
+                                      /min
                                     </span>
                                   </div>
                                 </div>
                               )}
-                              
+
                               {/* Medications */}
                               {result.info?.medications && (
                                 <div className="space-y-2">
-                                  <span className="text-sm font-medium text-gray-700">Medications:</span>
+                                  <span className="text-sm font-medium text-gray-700">
+                                    Medications:
+                                  </span>
                                   <div className="space-y-2">
-                                    {result.info.medications.added_or_changed && result.info.medications.added_or_changed.length > 0 && (
-                                      <div className="flex items-center gap-2">
-                                        <span className="text-xs text-green-600">Added/Changed:</span>
-                                        <div className="flex flex-wrap gap-1">
-                                          {result.info.medications.added_or_changed.map((med, idx) => (
-                                            <span key={idx} className="text-xs bg-green-50 text-green-800 px-2 py-1 rounded">
-                                              {med}
-                                            </span>
-                                          ))}
+                                    {result.info.medications.added_or_changed &&
+                                      result.info.medications.added_or_changed
+                                        .length > 0 && (
+                                        <div className="flex items-center gap-2">
+                                          <span className="text-xs text-green-600">
+                                            Added/Changed:
+                                          </span>
+                                          <div className="flex flex-wrap gap-1">
+                                            {result.info.medications.added_or_changed.map(
+                                              (med, idx) => (
+                                                <span
+                                                  key={idx}
+                                                  className="text-xs bg-green-50 text-green-800 px-2 py-1 rounded"
+                                                >
+                                                  {med}
+                                                </span>
+                                              )
+                                            )}
+                                          </div>
                                         </div>
-                                      </div>
-                                    )}
-                                    {result.info.medications.deleted && result.info.medications.deleted.length > 0 && (
-                                      <div className="flex items-center gap-2">
-                                        <span className="text-xs text-red-600">Discontinued:</span>
-                                        <div className="flex flex-wrap gap-1">
-                                          {result.info.medications.deleted.map((med, idx) => (
-                                            <span key={idx} className="text-xs bg-red-50 text-red-800 px-2 py-1 rounded">
-                                              {med}
-                                            </span>
-                                          ))}
+                                      )}
+                                    {result.info.medications.deleted &&
+                                      result.info.medications.deleted.length >
+                                        0 && (
+                                        <div className="flex items-center gap-2">
+                                          <span className="text-xs text-red-600">
+                                            Discontinued:
+                                          </span>
+                                          <div className="flex flex-wrap gap-1">
+                                            {result.info.medications.deleted.map(
+                                              (med, idx) => (
+                                                <span
+                                                  key={idx}
+                                                  className="text-xs bg-red-50 text-red-800 px-2 py-1 rounded"
+                                                >
+                                                  {med}
+                                                </span>
+                                              )
+                                            )}
+                                          </div>
                                         </div>
-                                      </div>
-                                    )}
+                                      )}
                                   </div>
                                 </div>
                               )}
-                              
+
                               {/* Raw Data Toggle */}
                               <details className="mt-4">
                                 <summary className="cursor-pointer text-sm font-medium text-gray-600 hover:text-gray-800">
@@ -676,62 +711,8 @@ const Dashboard = () => {
 
           {/* Right Column - Sidebar */}
           <div className="space-y-6">
-            {/* Upcoming Appointments */}
-            <Card className="bg-white/80 backdrop-blur-md border-gray-200 shadow-lg">
-              <CardHeader className="pb-3">
-                <div className="flex items-center justify-between">
-                  <CardTitle className="text-lg flex items-center gap-2">
-                    <Calendar className="h-5 w-5 text-gray-800" />
-                    Upcoming Appointments
-                  </CardTitle>
-                  <Button
-                    size="sm"
-                    variant="ghost"
-                    className="text-gray-800 hover:bg-gray-100 shadow-sm"
-                  >
-                    <Plus className="h-4 w-4" />
-                  </Button>
-                </div>
-                <CardDescription>2 scheduled</CardDescription>
-              </CardHeader>
-              <CardContent className="space-y-3">
-                <div className="p-3 bg-gray-100 rounded-lg border border-gray-200 shadow-md">
-                  <div className="flex items-start gap-3">
-                    <Stethoscope className="h-5 w-5 text-gray-800 mt-0.5" />
-                    <div className="flex-1">
-                      <p className="font-medium text-gray-900">
-                        Dr. Smith - Cardiology
-                      </p>
-                      <div className="flex items-center gap-2 text-sm text-gray-600 mt-1">
-                        <Clock className="h-3 w-3" />
-                        2/14/2024 at 10:00
-                      </div>
-                      <div className="flex items-center gap-2 text-sm text-gray-600">
-                        <MapPin className="h-3 w-3" />
-                        Heart Center, Room 205
-                      </div>
-                    </div>
-                  </div>
-                </div>
-
-                <div className="p-3 bg-gray-100 rounded-lg border border-gray-200 shadow-md">
-                  <div className="flex items-start gap-3">
-                    <TrendingUp className="h-5 w-5 text-gray-800 mt-0.5" />
-                    <div className="flex-1">
-                      <p className="font-medium text-gray-900">Blood Work</p>
-                      <div className="flex items-center gap-2 text-sm text-gray-600 mt-1">
-                        <Clock className="h-3 w-3" />
-                        2/19/2024 at 09:00
-                      </div>
-                      <div className="flex items-center gap-2 text-sm text-gray-600">
-                        <MapPin className="h-3 w-3" />
-                        Lab Services, 1st Floor
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
+            {/* Upcoming Dates Component */}
+            <UpcomingDates />
 
             {/* Smart Calendar Integration */}
             <Card className="bg-white/80 backdrop-blur-md border-gray-200 shadow-lg">
@@ -778,14 +759,16 @@ const Dashboard = () => {
                 <Button
                   variant="outline"
                   className="w-full justify-start border-gray-200 text-gray-800 hover:bg-gray-100 shadow-sm"
+                  onClick={() => navigate('/calendar')}
                 >
                   <Calendar className="h-4 w-4 mr-2" />
                   Schedule Appointment
                 </Button>
+
                 <Button
                   variant="outline"
                   className="w-full justify-start border-gray-200 text-gray-800 hover:bg-gray-100 shadow-sm"
-                  onClick={toggleChat}
+                  onClick={() => navigate('/chat')}
                 >
                   <MessageCircle className="h-4 w-4 mr-2" />
                   Chat with AI
@@ -795,89 +778,6 @@ const Dashboard = () => {
           </div>
         </div>
       </div>
-
-      {/* Chat Support Button */}
-      <div className="fixed bottom-6 right-6">
-        <button
-          onClick={toggleChat}
-          className="w-14 h-14 rounded-full bg-gray-800 hover:bg-gray-900 shadow-xl flex items-center justify-center transition-colors"
-        >
-          <MessageSquare className="h-6 w-6 text-white" />
-        </button>
-      </div>
-
-      {/* Chatbox */}
-      {isChatOpen && (
-        <div className="fixed bottom-24 right-6 w-80 bg-white/90 backdrop-blur-md rounded-lg shadow-2xl border border-gray-200">
-          {/* Chat Header */}
-          <div className="bg-gray-800 text-white p-4 rounded-t-lg flex items-center justify-between">
-            <div className="flex items-center gap-2">
-              <MessageSquare className="h-5 w-5" />
-              <h3 className="font-semibold">HealthSync AI Assistant</h3>
-            </div>
-            <button
-              onClick={toggleChat}
-              className="text-white hover:text-gray-300 transition-colors"
-            >
-              <X className="h-5 w-5" />
-            </button>
-          </div>
-
-          {/* Chat Messages */}
-          <div className="h-64 p-4 overflow-y-auto bg-gray-50">
-            <div className="space-y-3">
-              {/* Welcome Message */}
-              <div className="flex justify-start">
-                <div className="bg-gray-200 text-gray-900 rounded-lg px-3 py-2 max-w-xs">
-                  <p className="text-sm">
-                    Hello! I'm your AI health assistant. How can I help you
-                    today?
-                  </p>
-                </div>
-              </div>
-
-              {/* Example User Message */}
-              <div className="flex justify-end">
-                <div className="bg-gray-800 text-white rounded-lg px-3 py-2 max-w-xs">
-                  <p className="text-sm">
-                    Can you explain my blood test results?
-                  </p>
-                </div>
-              </div>
-
-              {/* Example AI Response */}
-              <div className="flex justify-start">
-                <div className="bg-gray-200 text-gray-900 rounded-lg px-3 py-2 max-w-xs">
-                  <p className="text-sm">
-                    I'd be happy to help! Please share your blood test results
-                    and I'll provide insights.
-                  </p>
-                </div>
-              </div>
-            </div>
-          </div>
-
-          {/* Chat Input */}
-          <div className="p-4 border-t border-gray-200">
-            <div className="flex gap-2">
-              <input
-                type="text"
-                value={message}
-                onChange={e => setMessage(e.target.value)}
-                onKeyPress={handleKeyPress}
-                placeholder="Type your message..."
-                className="flex-1 px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-gray-600 focus:border-transparent"
-              />
-              <button
-                onClick={handleSendMessage}
-                className="px-3 py-2 bg-gray-800 text-white rounded-lg hover:bg-gray-900 transition-colors flex items-center justify-center"
-              >
-                <Send className="h-4 w-4" />
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
     </div>
   );
 };

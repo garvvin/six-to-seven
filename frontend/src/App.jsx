@@ -11,6 +11,7 @@ const Home = React.lazy(() => import('./pages/Home'));
 const Dashboard = React.lazy(() => import('./pages/App'));
 const Team = React.lazy(() => import('./pages/Team'));
 const Calendar = React.lazy(() => import('./pages/Calendar'));
+const Chat = React.lazy(() => import('./pages/Chat'));
 const OAuthCallback = React.lazy(() => import('./pages/OAuthCallback'));
 const Login = React.lazy(() => import('./pages/Login'));
 const Signup = React.lazy(() => import('./pages/Signup'));
@@ -47,6 +48,15 @@ function App() {
                     element={
                       <ProtectedRoute>
                         <Calendar />
+                      </ProtectedRoute>
+                    }
+                  />
+
+                  <Route
+                    path="/chat"
+                    element={
+                      <ProtectedRoute>
+                        <Chat />
                       </ProtectedRoute>
                     }
                   />

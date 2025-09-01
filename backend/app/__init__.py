@@ -28,10 +28,16 @@ def create_app():
     from app.routes.auth import auth_bp
     from app.routes.upload import upload_bp
     from app.routes.medications import medications_bp
+    from app.routes.health_insights import health_insights_bp
+    from app.routes.chat import chat_bp
+    from app.routes.calendar import calendar_bp
     
     app.register_blueprint(auth_bp, url_prefix='/api/auth')
     app.register_blueprint(upload_bp, url_prefix='/api/upload')
     app.register_blueprint(medications_bp, url_prefix='/api/medications')
+    app.register_blueprint(health_insights_bp, url_prefix='/api/health-insights')
+    app.register_blueprint(chat_bp, url_prefix='/api/chat')
+    app.register_blueprint(calendar_bp, url_prefix='/api/calendar')
     
     @app.route('/api/health')
     def health_check():

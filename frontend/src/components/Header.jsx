@@ -14,6 +14,7 @@ const Header = () => {
     { name: 'App', href: '/app' },
     { name: 'Calendar', href: '/calendar' },
     { name: 'Team', href: '/team' },
+    { name: 'Chat', href: '/chat' },
   ];
 
   const isActive = path => location.pathname === path;

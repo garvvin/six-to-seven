@@ -293,3 +293,47 @@ class SupabaseService:
                 return False
         except:
             return False
+    
+    def get_user_health_insights(self, user_id):
+        """
+        Get health insights and analysis results for a specific user
+        
+        Args:
+            user_id (str): User's ID
+            
+        Returns:
+            list: List of health insights and analysis results
+        """
+        if not self.client:
+            return []
+        
+        try:
+            # Get user's email first
+            user_result = self.get_user_by_id(user_id)
+            if not user_result['success']:
+                logging.error(f"Could not find user with ID: {user_id}")
+                return []
+            
+            user_email = user_result['data']['email']
+            
+            # Get OCR results and analysis data for the user
+            ocr_results = self.get_ocr_results(user_email)
+            if not ocr_results['success']:
+                logging.warning(f"Could not fetch OCR results for user: {user_email}")
+                return []
+            
+            # Format the data for chat context
+            health_context = []
+            for result in ocr_results['data']:
+                context_item = {
+                    'fileName': result.get('fileName', 'Unknown file'),
+                    'timestamp': result.get('created_at', 'Unknown time'),
+                    'data': result.get('info', {})
+                }
+                health_context.append(context_item)
+            
+            return health_context
+            
+        except Exception as e:
+            logging.error(f"Error getting user health insights: {e}")
+            return []

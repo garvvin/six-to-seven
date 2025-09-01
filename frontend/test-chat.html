@@ -1,0 +1,198 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chat Service Test</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        .test-section {
+            margin: 20px 0;
+            padding: 20px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+        }
+        .test-button {
+            background: #007bff;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 4px;
+            cursor: pointer;
+            margin: 5px;
+        }
+        .test-button:hover {
+            background: #0056b3;
+        }
+        .test-button:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+        }
+        .result {
+            margin-top: 10px;
+            padding: 10px;
+            background: #f8f9fa;
+            border-radius: 4px;
+            white-space: pre-wrap;
+        }
+        .error {
+            background: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+        .success {
+            background: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+        input[type="text"] {
+            width: 100%;
+            padding: 8px;
+            margin: 5px 0;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+        }
+    </style>
+</head>
+<body>
+    <h1>Chat Service Test</h1>
+    <p>This page tests the chat service endpoints. Make sure your backend server is running on port 5005.</p>
+
+    <div class="test-section">
+        <h3>Test Health Chat</h3>
+        <input type="text" id="chatMessage" placeholder="Enter your health question..." value="What can you tell me about my health?">
+        <br>
+        <label>
+            <input type="checkbox" id="includeContext" checked> Include health context
+        </label>
+        <br>
+        <button class="test-button" onclick="testHealthChat()">Send Health Chat Message</button>
+        <div id="healthChatResult" class="result"></div>
+    </div>
+
+    <div class="test-section">
+        <h3>Test Chat History</h3>
+        <button class="test-button" onclick="testChatHistory()">Get Chat History</button>
+        <div id="chatHistoryResult" class="result"></div>
+    </div>
+
+    <div class="test-section">
+        <h3>Test Clear Chat History</h3>
+        <button class="test-button" onclick="testClearChatHistory()">Clear Chat History</button>
+        <div id="clearChatResult" class="result"></div>
+    </div>
+
+    <div class="test-section">
+        <h3>Test Authentication</h3>
+        <p>Note: These endpoints require authentication. You'll need to be logged in to test them properly.</p>
+        <button class="test-button" onclick="testUnauthenticated()">Test Unauthenticated Request</button>
+        <div id="authResult" class="result"></div>
+    </div>
+
+    <script>
+        const API_BASE = 'http://localhost:5005/api';
+
+        function showResult(elementId, data, isError = false) {
+            const element = document.getElementById(elementId);
+            element.textContent = JSON.stringify(data, null, 2);
+            element.className = `result ${isError ? 'error' : 'success'}`;
+        }
+
+        async function testHealthChat() {
+            const message = document.getElementById('chatMessage').value;
+            const includeContext = document.getElementById('includeContext').checked;
+            
+            try {
+                const response = await fetch(`${API_BASE}/chat/health-chat`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        message: message,
+                        include_health_context: includeContext
+                    })
+                });
+
+                const data = await response.json();
+                
+                if (response.ok) {
+                    showResult('healthChatResult', data);
+                } else {
+                    showResult('healthChatResult', data, true);
+                }
+            } catch (error) {
+                showResult('healthChatResult', { error: error.message }, true);
+            }
+        }
+
+        async function testChatHistory() {
+            try {
+                const response = await fetch(`${API_BASE}/chat/chat-history`);
+                const data = await response.json();
+                
+                if (response.ok) {
+                    showResult('chatHistoryResult', data);
+                } else {
+                    showResult('chatHistoryResult', data, true);
+                }
+            } catch (error) {
+                showResult('chatHistoryResult', { error: error.message }, true);
+            }
+        }
+
+        async function testClearChatHistory() {
+            try {
+                const response = await fetch(`${API_BASE}/chat/clear-chat-history`, {
+                    method: 'DELETE'
+                });
+                const data = await response.json();
+                
+                if (response.ok) {
+                    showResult('clearChatResult', data);
+                } else {
+                    showResult('clearChatResult', data, true);
+                }
+            } catch (error) {
+                showResult('clearChatResult', { error: error.message }, true);
+            }
+        }
+
+        async function testUnauthenticated() {
+            try {
+                const response = await fetch(`${API_BASE}/chat/health-chat`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        message: 'Test message'
+                    })
+                });
+
+                const data = await response.json();
+                
+                if (response.status === 401) {
+                    showResult('authResult', { 
+                        status: 'Success - Correctly rejected unauthenticated request',
+                        response: data 
+                    });
+                } else {
+                    showResult('authResult', { 
+                        status: 'Unexpected response',
+                        statusCode: response.status,
+                        response: data 
+                    }, true);
+                }
+            } catch (error) {
+                showResult('authResult', { error: error.message }, true);
+            }
+        }
+    </script>
+</body>
+</html>
